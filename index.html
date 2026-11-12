@@ -15,6 +15,7 @@
     --accent: #1f6f5c;
     --accent-soft: #2f8f77;
     --gold: #b8893b;
+    --gold-glow: rgba(184, 137, 59, 0.4);
     --border: #e2d6c0;
     --quote-bg: #fbf5e9;
     --shadow: 0 10px 30px rgba(43, 36, 25, 0.08);
@@ -32,6 +33,7 @@
     --accent: #6fd3b5;
     --accent-soft: #8fe6cc;
     --gold: #d9b06a;
+    --gold-glow: rgba(217, 176, 106, 0.4);
     --border: #2c3228;
     --quote-bg: #1f251d;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -48,6 +50,7 @@
       --accent: #6fd3b5;
       --accent-soft: #8fe6cc;
       --gold: #d9b06a;
+      --gold-glow: rgba(217, 176, 106, 0.4);
       --border: #2c3228;
       --quote-bg: #1f251d;
       --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -78,7 +81,7 @@
     transform: translateX(-50%);
     z-index: 100;
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
     padding: 6px 10px;
     background: color-mix(in srgb, var(--surface) 95%, transparent);
@@ -87,9 +90,8 @@
     border-radius: 999px;
     box-shadow: var(--shadow);
     max-width: 96vw;
-    overflow-x: auto; /* Skrol mendatar jika skrin terlalu kecil */
+    overflow-x: auto;
     white-space: nowrap;
-    /* Sembunyikan scrollbar */
     scrollbar-width: none; 
     -ms-overflow-style: none;
   }
@@ -116,24 +118,48 @@
     transition: all 0.25s ease;
   }
 
-  .btn { background: var(--bg-accent); border: 1px solid var(--border); }
-
   .seg button.active, .btn.active {
     background: var(--accent);
     color: var(--btn-active-text);
     box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 45%, transparent);
   }
 
-  .speed {
-    display: inline-flex;
+  /* ---------- BACA BUTTON (Mata Memandang) ---------- */
+  #btn-read {
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    background: var(--gold);
+    color: #111; /* Teks gelap untuk kontras */
+    border: none;
+    box-shadow: 0 0 12px var(--gold-glow);
+    animation: pulse-gold 2s infinite;
+  }
+  
+  #btn-read:hover, #btn-read.active {
+    background: var(--accent-soft);
+    color: #111;
+    box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 60%, transparent);
+    animation: none;
+  }
+
+  @keyframes pulse-gold {
+    0% { box-shadow: 0 0 0 0 var(--gold-glow); }
+    70% { box-shadow: 0 0 0 8px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  /* Speed Controller (Sembunyi dulu, keluar bila baca) */
+  .speed-panel {
+    display: none;
     align-items: center;
     gap: 6px;
     font-family: var(--sans);
     font-size: 0.7rem;
     color: var(--text-soft);
-    padding-left: 4px;
+    padding: 0 4px;
   }
-  .speed input { width: 60px; accent-color: var(--accent); }
+  .speed-panel.visible { display: inline-flex; }
+  .speed-panel input { width: 60px; accent-color: var(--accent); }
 
   /* ---------- Hero ---------- */
   .hero {
@@ -191,10 +217,9 @@
     margin: 0 0 18px; 
     text-align: justify; 
     hyphens: auto;
-    text-align-last: left; /* Paksa baris akhir align kiri untuk drop cap */
+    text-align-last: left; 
   }
   
-  /* Drop Cap yang lebih kemas */
   .article p:first-of-type::first-letter { 
     font-size: 3.2em; 
     float: left; 
@@ -239,11 +264,11 @@
       border-radius: 16px; 
       padding: 6px 8px; 
       top: 8px;
-      gap: 4px;
+      gap: 6px;
     }
-    .seg button, .btn { padding: 6px 8px; font-size: 0.7rem; }
-    .speed span { display: none; }
-    .speed input { width: 45px; }
+    .seg button { padding: 6px 8px; font-size: 0.7rem; }
+    #btn-read { padding: 6px 12px; }
+    .speed-panel input { width: 45px; }
     .article { padding: 10px 16px 80px; }
   }
 </style>
@@ -253,7 +278,6 @@
 <div class="progress" id="progress"></div>
 
 <!-- ============ CONTROL BAR ============ -->
-<!-- Saya buang 'role' supaya ia tak jadi terlalu besar, dan guna flex nowrap -->
 <div class="controls">
   <div class="seg">
     <button id="btn-ms" class="active">BM</button>
@@ -266,13 +290,13 @@
     <button id="btn-auto" class="active">Auto</button>
   </div>
 
-  <!-- Butang utama di tengah -->
-  <button id="btn-read" class="btn">🔊 Baca</button>
+  <!-- Butang PLAY / PAUSE yang menarik perhatian -->
+  <button id="btn-read" class="btn" aria-label="Mainkan bacaan">▶ Play</button>
 
-  <label class="speed">
-    <span>Speed</span>
+  <!-- Panel Speed (hanya muncul bila perlu) -->
+  <div class="speed-panel" id="speed-panel">
     <input type="range" id="speed" min="1" max="10" value="4" />
-  </label>
+  </div>
 </div>
 
 <!-- ============ HERO ============ -->
@@ -282,7 +306,7 @@
   <h1>Tadabbur Alam<br/>Menerusi Ayat-Ayat Kauniyyah</h1>
   <div class="divider"></div>
   <p class="date">13 November 2026M</p>
-  <p class="scroll-hint">↓ Tekan Baca untuk dengar & auto scroll ↓</p>
+  <p class="scroll-hint">↓ Tekan Play untuk dengar & auto scroll ↓</p>
 </header>
 
 <!-- ============ ARTICLE: MALAY ============ -->
@@ -367,7 +391,6 @@
     btnEN.classList.toggle("active", !isMS);
     html.lang = lang;
 
-    // Tukar bahasa = mula semula bacaan
     if (state.isReading) {
       stopReading();
       setTimeout(startReading, 300); 
@@ -397,8 +420,9 @@
   try { savedTheme = localStorage.getItem("tadabbur-theme") || "auto"; } catch (e) {}
   setTheme(savedTheme);
 
-  /* ---------- Text-to-Speech Logic (Versi Telefon Stabil) ---------- */
+  /* ---------- Text-to-Speech Logic ---------- */
   const btnRead = document.getElementById("btn-read");
+  const speedPanel = document.getElementById("speed-panel");
   const speedInput = document.getElementById("speed");
 
   function getVoice(langCode) {
@@ -410,7 +434,6 @@
     if (state.lastNode) state.lastNode.classList.remove("reading-highlight");
     if (node) {
       node.classList.add("reading-highlight");
-      // Auto-scroll ke tengah skrin phone
       const y = node.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2.5);
       window.scrollTo({ top: y, behavior: "smooth" });
       state.lastNode = node;
@@ -427,14 +450,14 @@
     const elements = section.querySelectorAll("p, h2, blockquote");
     state.speakingNodes = Array.from(elements);
 
-    btnRead.classList.add("active");
     btnRead.textContent = "⏸ Pause";
+    btnRead.classList.add("active");
+    speedPanel.classList.add("visible"); // Tunjuk slider speed
     
     speakNextNode();
   }
 
   function speakNextNode() {
-    // Jika user tekan Pause ketika suara sedang bercakap, jangan teruskan loop
     if (!state.isReading || state.isPaused || state.currentIndex >= state.speakingNodes.length) {
       if (state.currentIndex >= state.speakingNodes.length) stopReading();
       return;
@@ -456,7 +479,6 @@
     const voice = getVoice(langCode);
     if (voice) utterance.voice = voice;
 
-    // Kelajuan slider (1 = lambat, 10 = laju)
     utterance.rate = 0.7 + (Number(speedInput.value) * 0.05);
 
     utterance.onend = () => {
@@ -466,7 +488,6 @@
       }
     };
 
-    // Tangani error (cth: jika browser hentikan suara secara tiba-tiba)
     utterance.onerror = (e) => {
       if (e.error !== "interrupted" && e.error !== "canceled") {
         console.warn("Speech error:", e);
@@ -477,10 +498,9 @@
     synth.speak(utterance);
   }
 
-  // Fungsi Pause & Resume yang lebih selamat untuk Chrome Android
   function pauseReading() {
     state.isPaused = true;
-    synth.cancel(); // Hentikan serta-merta (lebih stabil dari .pause())
+    synth.cancel(); 
     btnRead.textContent = "▶ Play";
     btnRead.classList.remove("active");
   }
@@ -489,7 +509,6 @@
     state.isPaused = false;
     btnRead.textContent = "⏸ Pause";
     btnRead.classList.add("active");
-    // Ulang semula perenggan (state.currentIndex) yang tergantung tadi
     speakNextNode(); 
   }
 
@@ -497,8 +516,9 @@
     state.isReading = false;
     state.isPaused = false;
     synth.cancel();
-    btnRead.textContent = "🔊 Baca";
+    btnRead.textContent = "▶ Play";
     btnRead.classList.remove("active");
+    speedPanel.classList.remove("visible"); // Sembunyi slider speed
     if (state.lastNode) {
       state.lastNode.classList.remove("reading-highlight");
       state.lastNode = null;
@@ -514,7 +534,6 @@
     }
   });
 
-  // Sediakan voice
   if (synth) {
     synth.onvoiceschanged = () => { getVoice(state.lang === "ms" ? "ms-MY" : "en-US"); };
   }
