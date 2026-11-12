@@ -2,7 +2,7 @@
 <html lang="ms" data-theme="auto">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 <title>Tadabbur Alam — Ayat-Ayat Kauniyyah</title>
 <style>
   /* ---------- Design tokens ---------- */
@@ -35,7 +35,7 @@
     --border: #2c3228;
     --quote-bg: #1f251d;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-    --btn-active-text: #0d120e; /* Teks gelap untuk kontras di dark mode */
+    --btn-active-text: #0d120e;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -67,62 +67,61 @@
     color: var(--text);
     line-height: 1.85;
     transition: background 0.4s ease, color 0.4s ease;
+    overflow-x: hidden;
   }
 
   /* ---------- Control bar ---------- */
   .controls {
     position: fixed;
-    top: 16px;
+    top: 12px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 100;
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
-    justify-content: center;
-    padding: 8px 12px;
-    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    padding: 6px 10px;
+    background: color-mix(in srgb, var(--surface) 95%, transparent);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border);
     border-radius: 999px;
     box-shadow: var(--shadow);
-    max-width: calc(100% - 24px);
+    max-width: 96vw;
+    overflow-x: auto; /* Skrol mendatar jika skrin terlalu kecil */
+    white-space: nowrap;
+    /* Sembunyikan scrollbar */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
   }
+  .controls::-webkit-scrollbar { display: none; }
 
   .seg {
     display: inline-flex;
     background: var(--bg-accent);
     border-radius: 999px;
-    padding: 3px;
+    padding: 2px;
     border: 1px solid var(--border);
   }
 
   .seg button, .btn {
     font-family: var(--sans);
-    font-size: 0.82rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
-    padding: 7px 14px;
+    padding: 6px 12px;
     border: none;
     border-radius: 999px;
     background: transparent;
     color: var(--text-soft);
     cursor: pointer;
     transition: all 0.25s ease;
-    white-space: nowrap;
   }
 
-  .btn {
-    background: var(--bg-accent);
-    border: 1px solid var(--border);
-  }
+  .btn { background: var(--bg-accent); border: 1px solid var(--border); }
 
-  .seg button.active,
-  .btn.active {
+  .seg button.active, .btn.active {
     background: var(--accent);
-    color: var(--btn-active-text); /* Fix kontras teks */
-    box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 45%, transparent);
+    color: var(--btn-active-text);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 45%, transparent);
   }
 
   .speed {
@@ -130,21 +129,21 @@
     align-items: center;
     gap: 6px;
     font-family: var(--sans);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-soft);
-    margin-left: 4px;
+    padding-left: 4px;
   }
-  .speed input { width: 70px; accent-color: var(--accent); }
+  .speed input { width: 60px; accent-color: var(--accent); }
 
   /* ---------- Hero ---------- */
   .hero {
-    min-height: 78vh;
+    min-height: 70vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 120px 24px 60px;
+    padding: 100px 20px 40px;
     position: relative;
     overflow: hidden;
   }
@@ -165,47 +164,64 @@
     to   { transform: translate3d(2%, 2%, 0) scale(1.06); }
   }
 
-  .ornament { font-size: 1.6rem; color: var(--gold); letter-spacing: 0.5em; margin-bottom: 18px; opacity: 0.9; }
-  .hero h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1.2; margin: 0 0 14px; font-weight: 600; letter-spacing: -0.01em; position: relative; }
-  .hero .kicker { font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.28em; font-size: 0.72rem; color: var(--accent-soft); margin-bottom: 10px; position: relative; }
-  .hero .date { font-family: var(--sans); font-size: 0.9rem; color: var(--text-soft); position: relative; }
-  .divider { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 28px auto; }
+  .ornament { font-size: 1.5rem; color: var(--gold); letter-spacing: 0.5em; margin-bottom: 12px; }
+  .hero h1 { font-size: clamp(1.8rem, 6vw, 3.2rem); line-height: 1.2; margin: 0 0 12px; font-weight: 600; }
+  .hero .kicker { font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.65rem; color: var(--accent-soft); margin-bottom: 8px; }
+  .hero .date { font-family: var(--sans); font-size: 0.85rem; color: var(--text-soft); }
+  .divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px auto; }
   
   .scroll-hint {
-    position: relative; margin-top: 30px; font-family: var(--sans); font-size: 0.72rem;
-    letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-soft);
+    margin-top: 20px; font-family: var(--sans); font-size: 0.7rem;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-soft);
     animation: bob 2.2s ease-in-out infinite;
   }
   @keyframes bob { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(6px); opacity: 1; } }
 
   /* ---------- Article ---------- */
-  .article { max-width: 720px; margin: 0 auto; padding: 20px 28px 120px; }
+  .article { max-width: 720px; margin: 0 auto; padding: 20px 20px 100px; }
   .lang-block { display: none; }
   .lang-block.active { display: block; animation: fadeUp 0.6s ease; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-  .article h2 { font-size: clamp(1.3rem, 3.5vw, 1.7rem); margin: 56px 0 6px; color: var(--accent-soft); font-weight: 600; letter-spacing: -0.01em; }
-  .article h2::after { content: ""; display: block; width: 48px; height: 2px; margin-top: 12px; background: linear-gradient(90deg, var(--gold), transparent); }
-  .article p { font-size: clamp(1.02rem, 2.2vw, 1.15rem); margin: 0 0 20px; text-align: justify; hyphens: auto; }
-  .article p:first-of-type::first-letter { font-size: 3.4em; float: left; line-height: 0.85; padding: 6px 10px 0 0; color: var(--accent); font-weight: 700; }
+  .article h2 { font-size: clamp(1.25rem, 4vw, 1.7rem); margin: 40px 0 6px; color: var(--accent-soft); font-weight: 600; }
+  .article h2::after { content: ""; display: block; width: 40px; height: 2px; margin-top: 10px; background: linear-gradient(90deg, var(--gold), transparent); }
+  
+  .article p { 
+    font-size: clamp(1rem, 2.5vw, 1.15rem); 
+    margin: 0 0 18px; 
+    text-align: justify; 
+    hyphens: auto;
+    text-align-last: left; /* Paksa baris akhir align kiri untuk drop cap */
+  }
+  
+  /* Drop Cap yang lebih kemas */
+  .article p:first-of-type::first-letter { 
+    font-size: 3.2em; 
+    float: left; 
+    line-height: 0.8; 
+    padding: 6px 8px 0 0; 
+    color: var(--accent); 
+    font-weight: 700; 
+  }
 
   blockquote {
-    margin: 32px 0; padding: 28px 26px; background: var(--quote-bg); border-left: 4px solid var(--gold);
-    border-radius: 0 14px 14px 0; font-style: italic; font-size: clamp(1.05rem, 2.4vw, 1.22rem);
-    line-height: 1.9; color: var(--text); position: relative; box-shadow: var(--shadow);
+    margin: 28px 0; padding: 24px 20px; background: var(--quote-bg); border-left: 4px solid var(--gold);
+    border-radius: 0 12px 12px 0; font-style: italic; font-size: clamp(1rem, 2.8vw, 1.2rem);
+    line-height: 1.8; color: var(--text); box-shadow: var(--shadow);
     transition: background-color 0.3s, border-color 0.3s;
+    text-align: left;
   }
-  blockquote::before { content: "”"; position: absolute; top: -6px; right: 18px; font-size: 5rem; line-height: 1; color: var(--gold); opacity: 0.25; font-family: Georgia, serif; }
+  blockquote::before { content: "”"; position: absolute; top: -6px; right: 18px; font-size: 4rem; line-height: 1; color: var(--gold); opacity: 0.25; font-family: Georgia, serif; }
 
-  .closing { margin-top: 40px; padding: 24px 26px; background: linear-gradient(135deg, var(--bg-accent), var(--surface)); border: 1px solid var(--border); border-radius: 16px; font-style: italic; text-align: center; color: var(--text-soft); box-shadow: var(--shadow); transition: background 0.3s, border-color 0.3s; }
-  .closing .aamiin { display: block; margin-top: 10px; font-size: 1.4rem; color: var(--accent-soft); font-style: normal; letter-spacing: 0.1em; }
+  .closing { margin-top: 36px; padding: 20px; background: var(--bg-accent); border: 1px solid var(--border); border-radius: 12px; font-style: italic; text-align: center; color: var(--text-soft); }
+  .closing .aamiin { display: block; margin-top: 8px; font-size: 1.3rem; color: var(--accent-soft); font-style: normal; letter-spacing: 0.1em; }
 
-  .footer { text-align: center; padding: 40px 24px 70px; font-family: var(--sans); font-size: 0.78rem; color: var(--text-soft); border-top: 1px solid var(--border); max-width: 720px; margin: 0 auto; }
+  .footer { text-align: center; padding: 30px 20px 60px; font-family: var(--sans); font-size: 0.75rem; color: var(--text-soft); border-top: 1px solid var(--border); max-width: 720px; margin: 0 auto; }
 
   /* ---------- Reading Highlight ---------- */
   .reading-highlight {
     background-color: color-mix(in srgb, var(--accent) 20%, transparent);
-    border-radius: 6px;
+    border-radius: 4px;
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
     transition: background-color 0.2s, box-shadow 0.2s;
   }
@@ -217,11 +233,18 @@
   /* ---------- Scroll progress ---------- */
   .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent), var(--gold)); z-index: 200; transition: width 0.1s linear; }
 
+  /* ---------- KHAS UNTUK SMARTPHONE ---------- */
   @media (max-width: 600px) {
-    .controls { border-radius: 20px; padding: 10px; gap: 6px; }
-    .seg button, .btn { padding: 6px 10px; font-size: 0.74rem; }
-    .article { padding: 10px 20px 100px; }
+    .controls { 
+      border-radius: 16px; 
+      padding: 6px 8px; 
+      top: 8px;
+      gap: 4px;
+    }
+    .seg button, .btn { padding: 6px 8px; font-size: 0.7rem; }
     .speed span { display: none; }
+    .speed input { width: 45px; }
+    .article { padding: 10px 16px 80px; }
   }
 </style>
 </head>
@@ -230,21 +253,23 @@
 <div class="progress" id="progress"></div>
 
 <!-- ============ CONTROL BAR ============ -->
-<div class="controls" role="toolbar" aria-label="Kawalan paparan">
-  <div class="seg" role="group" aria-label="Bahasa">
-    <button id="btn-ms" class="active" aria-pressed="true">BM</button>
-    <button id="btn-en" aria-pressed="false">EN</button>
+<!-- Saya buang 'role' supaya ia tak jadi terlalu besar, dan guna flex nowrap -->
+<div class="controls">
+  <div class="seg">
+    <button id="btn-ms" class="active">BM</button>
+    <button id="btn-en">EN</button>
   </div>
 
-  <div class="seg" role="group" aria-label="Tema">
-    <button id="btn-light">☀ Light</button>
-    <button id="btn-dark">🌙 Dark</button>
+  <div class="seg">
+    <button id="btn-light">☀</button>
+    <button id="btn-dark">🌙</button>
     <button id="btn-auto" class="active">Auto</button>
   </div>
 
-  <button id="btn-read" class="btn">🔊 Baca / Read</button>
+  <!-- Butang utama di tengah -->
+  <button id="btn-read" class="btn">🔊 Baca</button>
 
-  <label class="speed" title="Kelajuan bacaan & scroll">
+  <label class="speed">
     <span>Speed</span>
     <input type="range" id="speed" min="1" max="10" value="4" />
   </label>
@@ -309,24 +334,20 @@
   "use strict";
 
   const html = document.documentElement;
-  const body = document.body;
-
-  /* ---------- Global State ---------- */
+  
   const state = {
     lang: "ms",
     isReading: false,
     isPaused: false,
     speakingNodes: [],
     currentIndex: 0,
-    activeUtterance: null,
     lastNode: null
   };
 
   const synth = window.speechSynthesis;
   
-  // Semak jika browser menyokong text-to-speech
   if (!synth) {
-    alert("Maaf, browser anda tidak menyokong Text-to-Speech.");
+    alert("Maaf, pelayar (browser) anda tidak menyokong Text-to-Speech.");
   }
 
   /* ---------- Language toggle ---------- */
@@ -344,14 +365,12 @@
     blockEN.classList.toggle("active", !isMS);
     btnMS.classList.toggle("active", isMS);
     btnEN.classList.toggle("active", !isMS);
-    btnMS.setAttribute("aria-pressed", String(isMS));
-    btnEN.setAttribute("aria-pressed", String(!isMS));
     html.lang = lang;
 
-    // Jika sedang membaca, tukar bahasa bermakna mula semula
+    // Tukar bahasa = mula semula bacaan
     if (state.isReading) {
       stopReading();
-      setTimeout(startReading, 200); 
+      setTimeout(startReading, 300); 
     }
   }
   btnMS.addEventListener("click", () => setLang("ms"));
@@ -378,37 +397,32 @@
   try { savedTheme = localStorage.getItem("tadabbur-theme") || "auto"; } catch (e) {}
   setTheme(savedTheme);
 
-  /* ---------- Text-to-Speech & Smart Scroll Logic ---------- */
+  /* ---------- Text-to-Speech Logic (Versi Telefon Stabil) ---------- */
   const btnRead = document.getElementById("btn-read");
   const speedInput = document.getElementById("speed");
 
   function getVoice(langCode) {
     const voices = synth.getVoices();
-    // Cari suara yang padan dengan kod bahasa (cth: 'ms-MY' atau 'en-US')
     return voices.find(v => v.lang.toLowerCase().includes(langCode.toLowerCase())) || null;
   }
 
   function highlightNode(node) {
-    // Buang highlight lama
-    if (state.lastNode) {
-      state.lastNode.classList.remove("reading-highlight");
-    }
+    if (state.lastNode) state.lastNode.classList.remove("reading-highlight");
     if (node) {
       node.classList.add("reading-highlight");
-      // Scroll sikit ke atas supaya teks yang dibaca nampak selesa
-      const y = node.getBoundingClientRect().top + window.scrollY - 150;
+      // Auto-scroll ke tengah skrin phone
+      const y = node.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2.5);
       window.scrollTo({ top: y, behavior: "smooth" });
       state.lastNode = node;
     }
   }
 
   function startReading() {
-    synth.cancel(); // Hentikan bacaan sebelum ini jika ada
+    synth.cancel();
     state.isReading = true;
     state.isPaused = false;
     state.currentIndex = 0;
     
-    // Ambil semua teks dalam section bahasa aktif (P, H2, BLOCKQUOTE)
     const section = state.lang === "ms" ? blockMS : blockEN;
     const elements = section.querySelectorAll("p, h2, blockquote");
     state.speakingNodes = Array.from(elements);
@@ -420,8 +434,9 @@
   }
 
   function speakNextNode() {
-    if (!state.isReading || state.currentIndex >= state.speakingNodes.length) {
-      stopReading();
+    // Jika user tekan Pause ketika suara sedang bercakap, jangan teruskan loop
+    if (!state.isReading || state.isPaused || state.currentIndex >= state.speakingNodes.length) {
+      if (state.currentIndex >= state.speakingNodes.length) stopReading();
       return;
     }
 
@@ -441,50 +456,48 @@
     const voice = getVoice(langCode);
     if (voice) utterance.voice = voice;
 
-    // Kelajuan suara (0.5 lambat, 1 normal, 2 laju)
-    // Kita map slider 1-10 kepada 0.6 ke 1.5
-    utterance.rate = 0.6 + (Number(speedInput.value) * 0.08);
+    // Kelajuan slider (1 = lambat, 10 = laju)
+    utterance.rate = 0.7 + (Number(speedInput.value) * 0.05);
 
     utterance.onend = () => {
-      // Jika user tekan pause ketika suara sedang bercakap, onend mungkin trigger.
-      // Pastikan ia hanya advance jika state masih 'reading' & 'not paused'
       if (state.isReading && !state.isPaused) {
         state.currentIndex++;
         speakNextNode();
       }
     };
 
+    // Tangani error (cth: jika browser hentikan suara secara tiba-tiba)
     utterance.onerror = (e) => {
-      // Abaikan error jika ia disebabkan oleh cancel() secara sengaja
-      if (e.error !== "interrupted") {
+      if (e.error !== "interrupted" && e.error !== "canceled") {
         console.warn("Speech error:", e);
         stopReading();
       }
     };
 
-    state.activeUtterance = utterance;
     synth.speak(utterance);
   }
 
+  // Fungsi Pause & Resume yang lebih selamat untuk Chrome Android
   function pauseReading() {
     state.isPaused = true;
-    synth.pause();
-    btnRead.textContent = "▶ Resume";
+    synth.cancel(); // Hentikan serta-merta (lebih stabil dari .pause())
+    btnRead.textContent = "▶ Play";
     btnRead.classList.remove("active");
   }
 
   function resumeReading() {
     state.isPaused = false;
-    synth.resume();
     btnRead.textContent = "⏸ Pause";
     btnRead.classList.add("active");
+    // Ulang semula perenggan (state.currentIndex) yang tergantung tadi
+    speakNextNode(); 
   }
 
   function stopReading() {
     state.isReading = false;
     state.isPaused = false;
-    synth.cancel(); // Hentikan suara
-    btnRead.textContent = "🔊 Baca / Read";
+    synth.cancel();
+    btnRead.textContent = "🔊 Baca";
     btnRead.classList.remove("active");
     if (state.lastNode) {
       state.lastNode.classList.remove("reading-highlight");
@@ -501,23 +514,12 @@
     }
   });
 
-  // Hentikan bacaan jika user scroll secara manual (untuk elak konflik)
-  ["wheel", "touchstart"].forEach(evt => {
-    window.addEventListener(evt, () => {
-      if (state.isReading && !state.isPaused) {
-        // Beri masa sedikit untuk abaikan scroll programatik
-        // Kita buat simple check je dulu: pause if user actively scrolls
-        pauseReading(); 
-      }
-    }, { passive: true });
-  });
-
-  // Sediakan voice bila browser dah load
+  // Sediakan voice
   if (synth) {
     synth.onvoiceschanged = () => { getVoice(state.lang === "ms" ? "ms-MY" : "en-US"); };
   }
 
-  /* ---------- Reading progress bar (visual) ---------- */
+  /* ---------- Reading progress ---------- */
   const progress = document.getElementById("progress");
   function updateProgress() {
     const h = document.documentElement;
