@@ -163,13 +163,13 @@
 
   /* ---------- Hero ---------- */
   .hero {
-    min-height: 70vh;
+    min-height: 75vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 100px 20px 40px;
+    padding: 110px 20px 40px;
     position: relative;
     overflow: hidden;
   }
@@ -190,18 +190,30 @@
     to   { transform: translate3d(2%, 2%, 0) scale(1.06); }
   }
 
-  .ornament { font-size: 1.5rem; color: var(--gold); letter-spacing: 0.5em; margin-bottom: 12px; }
+  .ornament { font-size: 1.6rem; color: var(--gold); letter-spacing: 0.5em; margin-bottom: 12px; }
   .hero h1 { font-size: clamp(1.8rem, 6vw, 3.2rem); line-height: 1.2; margin: 0 0 12px; font-weight: 600; }
   .hero .kicker { font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.65rem; color: var(--accent-soft); margin-bottom: 8px; }
   .hero .date { font-family: var(--sans); font-size: 0.85rem; color: var(--text-soft); }
   .divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px auto; }
   
-  .scroll-hint {
-    margin-top: 20px; font-family: var(--sans); font-size: 0.7rem;
-    letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-soft);
+  /* Panduan Play */
+  .onboarding-badge {
+    margin-top: 15px;
+    background: var(--bg-accent);
+    border: 1px dashed var(--gold);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--gold);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     animation: bob 2.2s ease-in-out infinite;
   }
-  @keyframes bob { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(6px); opacity: 1; } }
+
+  @keyframes bob { 0%, 100% { transform: translateY(0); opacity: 0.8; } 50% { transform: translateY(4px); opacity: 1; } }
 
   /* ---------- Article ---------- */
   .article { max-width: 720px; margin: 0 auto; padding: 20px 20px 100px; }
@@ -270,6 +282,7 @@
     #btn-read { padding: 6px 12px; }
     .speed-panel input { width: 45px; }
     .article { padding: 10px 16px 80px; }
+    .hero { padding-top: 90px; }
   }
 </style>
 </head>
@@ -304,7 +317,11 @@
   <h1>Tadabbur Alam<br/>Menerusi Ayat-Ayat Kauniyyah</h1>
   <div class="divider"></div>
   <p class="date">13 November 2026M</p>
-  <p class="scroll-hint">↓ Tekan Play untuk dengar & auto scroll ↓</p>
+  
+  <!-- Badge Panduan -->
+  <div class="onboarding-badge">
+    <span>🎧</span> Tekan ▶ Play untuk dengar sambil buat kerja
+  </div>
 </header>
 
 <!-- ============ ARTICLE: MALAY ============ -->
@@ -457,7 +474,10 @@
 
   function speakNextNode() {
     if (!state.isReading || state.isPaused || state.currentIndex >= state.speakingNodes.length) {
-      if (state.currentIndex >= state.speakingNodes.length) stopReading();
+      if (state.currentIndex >= state.speakingNodes.length) {
+        // Habis baca, reset butang
+        stopReading();
+      }
       return;
     }
 
@@ -477,9 +497,7 @@
     const voice = getVoice(langCode);
     if (voice) utterance.voice = voice;
 
-    // Pastikan ia ambil nilai slider terkini
     const currentSpeed = Number(speedInput.value);
-    // Slider 1-10 dipetakan kepada 0.6 (perlahan) hingga 1.6 (laju)
     utterance.rate = 0.6 + (currentSpeed * 0.1);
     utterance.pitch = 1.0;
 
@@ -537,11 +555,9 @@
   });
 
   /* ---------- Logik Slider Speed Dinamik ---------- */
-  // Bila slider digerakkan, ia akan restart bacaan pada perenggan semasa dengan kelajuan baru
   speedInput.addEventListener("input", () => {
     if (state.isReading && !state.isPaused) {
-      synth.cancel(); // Hentikan suara lama
-      // Beri jeda 100ms sebelum mula semula supaya browser tak "clash"
+      synth.cancel(); 
       setTimeout(speakNextNode, 100); 
     }
   });
