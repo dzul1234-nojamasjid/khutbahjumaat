@@ -124,12 +124,12 @@
     box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 45%, transparent);
   }
 
-  /* ---------- BACA BUTTON (Mata Memandang) ---------- */
+  /* ---------- BACA BUTTON ---------- */
   #btn-read {
     font-size: 0.85rem;
     padding: 6px 16px;
     background: var(--gold);
-    color: #111; /* Teks gelap untuk kontras */
+    color: #111;
     border: none;
     box-shadow: 0 0 12px var(--gold-glow);
     animation: pulse-gold 2s infinite;
@@ -148,7 +148,7 @@
     100% { box-shadow: 0 0 0 0 transparent; }
   }
 
-  /* Speed Controller (Sembunyi dulu, keluar bila baca) */
+  /* Speed Controller */
   .speed-panel {
     display: none;
     align-items: center;
@@ -159,7 +159,7 @@
     padding: 0 4px;
   }
   .speed-panel.visible { display: inline-flex; }
-  .speed-panel input { width: 60px; accent-color: var(--accent); }
+  .speed-panel input { width: 60px; accent-color: var(--accent); cursor: pointer; }
 
   /* ---------- Hero ---------- */
   .hero {
@@ -290,12 +290,10 @@
     <button id="btn-auto" class="active">Auto</button>
   </div>
 
-  <!-- Butang PLAY / PAUSE yang menarik perhatian -->
-  <button id="btn-read" class="btn" aria-label="Mainkan bacaan">▶ Play</button>
+  <button id="btn-read" class="btn">▶ Play</button>
 
-  <!-- Panel Speed (hanya muncul bila perlu) -->
   <div class="speed-panel" id="speed-panel">
-    <input type="range" id="speed" min="1" max="10" value="4" />
+    <input type="range" id="speed" min="1" max="10" value="4" step="1" />
   </div>
 </div>
 
@@ -452,7 +450,7 @@
 
     btnRead.textContent = "⏸ Pause";
     btnRead.classList.add("active");
-    speedPanel.classList.add("visible"); // Tunjuk slider speed
+    speedPanel.classList.add("visible"); 
     
     speakNextNode();
   }
@@ -479,7 +477,11 @@
     const voice = getVoice(langCode);
     if (voice) utterance.voice = voice;
 
-    utterance.rate = 0.7 + (Number(speedInput.value) * 0.05);
+    // Pastikan ia ambil nilai slider terkini
+    const currentSpeed = Number(speedInput.value);
+    // Slider 1-10 dipetakan kepada 0.6 (perlahan) hingga 1.6 (laju)
+    utterance.rate = 0.6 + (currentSpeed * 0.1);
+    utterance.pitch = 1.0;
 
     utterance.onend = () => {
       if (state.isReading && !state.isPaused) {
@@ -518,7 +520,7 @@
     synth.cancel();
     btnRead.textContent = "▶ Play";
     btnRead.classList.remove("active");
-    speedPanel.classList.remove("visible"); // Sembunyi slider speed
+    speedPanel.classList.remove("visible"); 
     if (state.lastNode) {
       state.lastNode.classList.remove("reading-highlight");
       state.lastNode = null;
@@ -531,6 +533,16 @@
       else pauseReading();
     } else {
       startReading();
+    }
+  });
+
+  /* ---------- Logik Slider Speed Dinamik ---------- */
+  // Bila slider digerakkan, ia akan restart bacaan pada perenggan semasa dengan kelajuan baru
+  speedInput.addEventListener("input", () => {
+    if (state.isReading && !state.isPaused) {
+      synth.cancel(); // Hentikan suara lama
+      // Beri jeda 100ms sebelum mula semula supaya browser tak "clash"
+      setTimeout(speakNextNode, 100); 
     }
   });
 
