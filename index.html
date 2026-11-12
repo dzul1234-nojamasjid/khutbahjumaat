@@ -161,6 +161,19 @@
   .speed-panel.visible { display: inline-flex; }
   .speed-panel input { width: 60px; accent-color: var(--accent); cursor: pointer; }
 
+  /* Butang Share */
+  .btn-share {
+    background: var(--bg-accent);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .btn-share:hover { background: var(--border); }
+
   /* ---------- Hero ---------- */
   .hero {
     min-height: 75vh;
@@ -196,7 +209,6 @@
   .hero .date { font-family: var(--sans); font-size: 0.85rem; color: var(--text-soft); }
   .divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px auto; }
   
-  /* Panduan Play */
   .onboarding-badge {
     margin-top: 15px;
     background: var(--bg-accent);
@@ -270,6 +282,30 @@
   /* ---------- Scroll progress ---------- */
   .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent), var(--gold)); z-index: 200; transition: width 0.1s linear; }
 
+  /* ---------- Notifikasi Toast ---------- */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 300;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* ---------- KHAS UNTUK SMARTPHONE ---------- */
   @media (max-width: 600px) {
     .controls { 
@@ -308,7 +344,13 @@
   <div class="speed-panel" id="speed-panel">
     <input type="range" id="speed" min="1" max="10" value="4" step="1" />
   </div>
+
+  <!-- Butang Share yang baru ditambah -->
+  <button id="btn-share" class="btn-share" title="Kongsi pautan">🔗</button>
 </div>
+
+<!-- Notifikasi Copy -->
+<div id="toast" class="toast">Pautan disalin!</div>
 
 <!-- ============ HERO ============ -->
 <header class="hero">
@@ -318,7 +360,6 @@
   <div class="divider"></div>
   <p class="date">13 November 2026M</p>
   
-  <!-- Badge Panduan -->
   <div class="onboarding-badge">
     <span>🎧</span> Tekan ▶ Play untuk dengar sambil buat kerja
   </div>
@@ -475,7 +516,6 @@
   function speakNextNode() {
     if (!state.isReading || state.isPaused || state.currentIndex >= state.speakingNodes.length) {
       if (state.currentIndex >= state.speakingNodes.length) {
-        // Habis baca, reset butang
         stopReading();
       }
       return;
@@ -554,13 +594,50 @@
     }
   });
 
-  /* ---------- Logik Slider Speed Dinamik ---------- */
   speedInput.addEventListener("input", () => {
     if (state.isReading && !state.isPaused) {
       synth.cancel(); 
       setTimeout(speakNextNode, 100); 
     }
   });
+
+  /* ---------- Logik Butang Share / Copy Link ---------- */
+  const btnShare = document.getElementById("btn-share");
+  const toast = document.getElementById("toast");
+
+  btnShare.addEventListener("click", async () => {
+    const shareData = {
+      title: document.title,
+      text: "Bacaan Kutbah Jumaat - Tadabbur Alam (Boleh dengar audio)",
+      url: window.location.href
+    };
+
+    try {
+      // Cuba guna Web Share API (biasanya pada telefon)
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Jika desktop / browser tak support, salin ke clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        showToast();
+      }
+    } catch (err) {
+      // Jika user cancel share, atau clipboard fail, fallback ke salin manual
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        showToast();
+      } catch (e) {
+        alert("Sila salin pautan di bar alamat browser anda.");
+      }
+    }
+  });
+
+  function showToast() {
+    toast.classList.add("show");
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2500);
+  }
 
   if (synth) {
     synth.onvoiceschanged = () => { getVoice(state.lang === "ms" ? "ms-MY" : "en-US"); };
