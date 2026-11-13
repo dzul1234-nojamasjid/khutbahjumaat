@@ -222,10 +222,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    animation: bob 2.2s ease-in-out infinite;
   }
-
-  @keyframes bob { 0%, 100% { transform: translateY(0); opacity: 0.8; } 50% { transform: translateY(4px); opacity: 1; } }
 
   /* ---------- Article ---------- */
   .article { max-width: 720px; margin: 0 auto; padding: 20px 20px 100px; }
@@ -345,7 +342,6 @@
     <input type="range" id="speed" min="1" max="10" value="4" step="1" />
   </div>
 
-  <!-- Butang Share yang baru ditambah -->
   <button id="btn-share" class="btn-share" title="Kongsi pautan">🔗</button>
 </div>
 
@@ -361,7 +357,7 @@
   <p class="date">13 November 2026M</p>
   
   <div class="onboarding-badge">
-    <span>🎧</span> Tekan ▶ Play untuk dengar sambil buat kerja
+    <span>🎧</span> Membaca secara automatik...
   </div>
 </header>
 
@@ -415,13 +411,15 @@
 
   const html = document.documentElement;
   
+  // State kita tambah 'autoPlaySequence' untuk kawalan auto bacaan BM -> EN
   const state = {
     lang: "ms",
     isReading: false,
     isPaused: false,
     speakingNodes: [],
     currentIndex: 0,
-    lastNode: null
+    lastNode: null,
+    autoPlaySequence: false // Flag khas untuk "One Click Play"
   };
 
   const synth = window.speechSynthesis;
@@ -447,9 +445,9 @@
     btnEN.classList.toggle("active", !isMS);
     html.lang = lang;
 
+    // Jika user tukar bahasa secara manual, hentikan bacaan
     if (state.isReading) {
       stopReading();
-      setTimeout(startReading, 300); 
     }
   }
   btnMS.addEventListener("click", () => setLang("ms"));
@@ -496,11 +494,13 @@
     }
   }
 
-  function startReading() {
+  // Fungsi utama untuk mula membaca (boleh terima parameter dari mana ia dipanggil)
+  function startReading(playWholeSequence = false) {
     synth.cancel();
     state.isReading = true;
     state.isPaused = false;
     state.currentIndex = 0;
+    state.autoPlaySequence = playWholeSequence; // Set flag
     
     const section = state.lang === "ms" ? blockMS : blockEN;
     const elements = section.querySelectorAll("p, h2, blockquote");
@@ -514,10 +514,34 @@
   }
 
   function speakNextNode() {
-    if (!state.isReading || state.isPaused || state.currentIndex >= state.speakingNodes.length) {
-      if (state.currentIndex >= state.speakingNodes.length) {
-        stopReading();
+    if (!state.isReading || state.isPaused) return;
+
+    // Jika dah habis baca perenggan dalam bahasa semasa
+    if (state.currentIndex >= state.speakingNodes.length) {
+      
+      // Logik Auto-Play Sequence: Jika flag aktif dan masih BM, tukar ke EN
+      if (state.autoPlaySequence && state.lang === "ms") {
+        state.lang = "en";
+        // Update UI (tanpa trigger stopReading)
+        blockMS.classList.remove("active");
+        blockEN.classList.add("active");
+        btnMS.classList.remove("active");
+        btnEN.classList.add("active");
+        html.lang = "en";
+
+        // Dapatkan teks English
+        const section = blockEN;
+        const elements = section.querySelectorAll("p, h2, blockquote");
+        state.speakingNodes = Array.from(elements);
+        state.currentIndex = 0;
+        
+        // Teruskan bacaan
+        speakNextNode();
+        return;
       }
+
+      // Jika dah habis semua (atau tak auto-play), stop.
+      stopReading();
       return;
     }
 
@@ -575,6 +599,7 @@
   function stopReading() {
     state.isReading = false;
     state.isPaused = false;
+    state.autoPlaySequence = false;
     synth.cancel();
     btnRead.textContent = "▶ Play";
     btnRead.classList.remove("active");
@@ -590,7 +615,8 @@
       if (state.isPaused) resumeReading();
       else pauseReading();
     } else {
-      startReading();
+      // Jika user tekan Play secara manual, kita main BM sahaja dulu (tak auto-sequence)
+      startReading(false);
     }
   });
 
@@ -613,16 +639,13 @@
     };
 
     try {
-      // Cuba guna Web Share API (biasanya pada telefon)
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        // Jika desktop / browser tak support, salin ke clipboard
         await navigator.clipboard.writeText(window.location.href);
         showToast();
       }
     } catch (err) {
-      // Jika user cancel share, atau clipboard fail, fallback ke salin manual
       try {
         await navigator.clipboard.writeText(window.location.href);
         showToast();
@@ -654,6 +677,27 @@
   window.addEventListener("scroll", updateProgress, { passive: true });
   window.addEventListener("resize", updateProgress);
   updateProgress();
+
+  /* ========================================================
+     AUTO PLAY ON LOAD (Cuba main automatik BM -> EN sebaik dibuka)
+     ======================================================== */
+  window.addEventListener("load", () => {
+    // Kita beri masa 500ms untuk browser render dulu
+    setTimeout(() => {
+      // Siasatan: Browser moden memerlukan user untuk sentuh skrin dulu baru boleh bunyikan audio.
+      // Kita guna teknik 'silent audio unlock' (main audio kosong) untuk cuba bypass.
+      const silentAudio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
+      silentAudio.play().then(() => {
+        // Jika berjaya play, maknanya browser bagi kebenaran. Teruskan Auto Play!
+        startReading(true); 
+      }).catch(() => {
+        // Jika browser sekat (perlu sentuhan), kita tukar teks butang supaya user nampak apa nak buat
+        btnRead.style.animation = "pulse-gold 1s infinite"; // Buat butang kuning berkelip lebih kuat
+        btnRead.textContent = "▶ Tekan Sini";
+        document.querySelector(".onboarding-badge").innerHTML = "<span>👆</span> Sila tekan butang kuning di atas untuk mula dengar";
+      });
+    }, 500);
+  });
 
 })();
 </script>
