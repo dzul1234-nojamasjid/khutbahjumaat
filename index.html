@@ -131,8 +131,8 @@
     background: var(--gold);
     color: #111;
     border: none;
-    box-shadow: 0 0 12px var(--gold-glow);
-    animation: pulse-gold 2s infinite;
+    box-shadow: 0 0 15px var(--gold-glow);
+    animation: pulse-gold 1.5s infinite;
   }
   
   #btn-read:hover, #btn-read.active {
@@ -144,7 +144,7 @@
 
   @keyframes pulse-gold {
     0% { box-shadow: 0 0 0 0 var(--gold-glow); }
-    70% { box-shadow: 0 0 0 8px transparent; }
+    70% { box-shadow: 0 0 0 10px transparent; }
     100% { box-shadow: 0 0 0 0 transparent; }
   }
 
@@ -176,13 +176,13 @@
 
   /* ---------- Hero ---------- */
   .hero {
-    min-height: 75vh;
+    min-height: 70vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 110px 20px 40px;
+    padding: 100px 20px 40px;
     position: relative;
     overflow: hidden;
   }
@@ -222,7 +222,10 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    animation: bob 2.2s ease-in-out infinite;
   }
+
+  @keyframes bob { 0%, 100% { transform: translateY(0); opacity: 0.8; } 50% { transform: translateY(4px); opacity: 1; } }
 
   /* ---------- Article ---------- */
   .article { max-width: 720px; margin: 0 auto; padding: 20px 20px 100px; }
@@ -287,16 +290,19 @@
     transform: translateX(-50%) translateY(20px);
     background: var(--text);
     color: var(--bg);
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 99px;
     font-family: var(--sans);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
     box-shadow: var(--shadow);
     opacity: 0;
     pointer-events: none;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
     z-index: 300;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .toast.show {
     opacity: 1;
@@ -315,7 +321,7 @@
     #btn-read { padding: 6px 12px; }
     .speed-panel input { width: 45px; }
     .article { padding: 10px 16px 80px; }
-    .hero { padding-top: 90px; }
+    .hero { padding-top: 80px; }
   }
 </style>
 </head>
@@ -345,8 +351,10 @@
   <button id="btn-share" class="btn-share" title="Kongsi pautan">🔗</button>
 </div>
 
-<!-- Notifikasi Copy -->
-<div id="toast" class="toast">Pautan disalin!</div>
+<!-- Notifikasi Toast -->
+<div id="toast" class="toast">
+  <span>👆</span> Tekan ▶ Play untuk mula dengar
+</div>
 
 <!-- ============ HERO ============ -->
 <header class="hero">
@@ -357,7 +365,7 @@
   <p class="date">13 November 2026M</p>
   
   <div class="onboarding-badge">
-    <span>🎧</span> Membaca secara automatik...
+    <span>🎧</span> Sila tekan butang kuning di atas
   </div>
 </header>
 
@@ -411,7 +419,6 @@
 
   const html = document.documentElement;
   
-  // State kita tambah 'autoPlaySequence' untuk kawalan auto bacaan BM -> EN
   const state = {
     lang: "ms",
     isReading: false,
@@ -419,7 +426,7 @@
     speakingNodes: [],
     currentIndex: 0,
     lastNode: null,
-    autoPlaySequence: false // Flag khas untuk "One Click Play"
+    autoPlaySequence: false 
   };
 
   const synth = window.speechSynthesis;
@@ -445,7 +452,6 @@
     btnEN.classList.toggle("active", !isMS);
     html.lang = lang;
 
-    // Jika user tukar bahasa secara manual, hentikan bacaan
     if (state.isReading) {
       stopReading();
     }
@@ -494,13 +500,12 @@
     }
   }
 
-  // Fungsi utama untuk mula membaca (boleh terima parameter dari mana ia dipanggil)
   function startReading(playWholeSequence = false) {
     synth.cancel();
     state.isReading = true;
     state.isPaused = false;
     state.currentIndex = 0;
-    state.autoPlaySequence = playWholeSequence; // Set flag
+    state.autoPlaySequence = playWholeSequence;
     
     const section = state.lang === "ms" ? blockMS : blockEN;
     const elements = section.querySelectorAll("p, h2, blockquote");
@@ -516,31 +521,27 @@
   function speakNextNode() {
     if (!state.isReading || state.isPaused) return;
 
-    // Jika dah habis baca perenggan dalam bahasa semasa
     if (state.currentIndex >= state.speakingNodes.length) {
       
-      // Logik Auto-Play Sequence: Jika flag aktif dan masih BM, tukar ke EN
+      // Logik: Bila BM habis, tukar ke EN secara automatik (jika sequence diaktifkan)
       if (state.autoPlaySequence && state.lang === "ms") {
         state.lang = "en";
-        // Update UI (tanpa trigger stopReading)
+        
         blockMS.classList.remove("active");
         blockEN.classList.add("active");
         btnMS.classList.remove("active");
         btnEN.classList.add("active");
         html.lang = "en";
 
-        // Dapatkan teks English
         const section = blockEN;
         const elements = section.querySelectorAll("p, h2, blockquote");
         state.speakingNodes = Array.from(elements);
         state.currentIndex = 0;
         
-        // Teruskan bacaan
         speakNextNode();
         return;
       }
 
-      // Jika dah habis semua (atau tak auto-play), stop.
       stopReading();
       return;
     }
@@ -615,8 +616,8 @@
       if (state.isPaused) resumeReading();
       else pauseReading();
     } else {
-      // Jika user tekan Play secara manual, kita main BM sahaja dulu (tak auto-sequence)
-      startReading(false);
+      // Bila user tekan Play, ia akan mula baca BM sampai habis, terus EN
+      startReading(true); 
     }
   });
 
@@ -643,23 +644,24 @@
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        showToast();
+        showToast("Pautan disalin!");
       }
     } catch (err) {
       try {
         await navigator.clipboard.writeText(window.location.href);
-        showToast();
+        showToast("Pautan disalin!");
       } catch (e) {
         alert("Sila salin pautan di bar alamat browser anda.");
       }
     }
   });
 
-  function showToast() {
+  function showToast(message, duration = 2500) {
+    toast.innerHTML = message;
     toast.classList.add("show");
     setTimeout(() => {
       toast.classList.remove("show");
-    }, 2500);
+    }, duration);
   }
 
   if (synth) {
@@ -679,24 +681,16 @@
   updateProgress();
 
   /* ========================================================
-     AUTO PLAY ON LOAD (Cuba main automatik BM -> EN sebaik dibuka)
+     AUTO-PROMPT ON LOAD
      ======================================================== */
   window.addEventListener("load", () => {
-    // Kita beri masa 500ms untuk browser render dulu
+    // Tunjuk pop-up notifikasi (Toast) di bawah skrin bila page dibuka
     setTimeout(() => {
-      // Siasatan: Browser moden memerlukan user untuk sentuh skrin dulu baru boleh bunyikan audio.
-      // Kita guna teknik 'silent audio unlock' (main audio kosong) untuk cuba bypass.
-      const silentAudio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
-      silentAudio.play().then(() => {
-        // Jika berjaya play, maknanya browser bagi kebenaran. Teruskan Auto Play!
-        startReading(true); 
-      }).catch(() => {
-        // Jika browser sekat (perlu sentuhan), kita tukar teks butang supaya user nampak apa nak buat
-        btnRead.style.animation = "pulse-gold 1s infinite"; // Buat butang kuning berkelip lebih kuat
-        btnRead.textContent = "▶ Tekan Sini";
-        document.querySelector(".onboarding-badge").innerHTML = "<span>👆</span> Sila tekan butang kuning di atas untuk mula dengar";
-      });
-    }, 500);
+      showToast("<span>👆</span> Sila tekan ▶ Play di atas", 5000);
+      
+      // Buat butang Play berkelip-kelip warna kuning terang
+      btnRead.style.animation = "pulse-gold 1s infinite";
+    }, 1000);
   });
 
 })();
