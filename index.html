@@ -315,7 +315,7 @@
       <div class="badge">Khutbah Jumaat • 10 Jamadilakhir 1448H</div>
       <h1 class="hero-title">Kelembutan Jiwa: Penawar Ketegangan</h1>
       <div class="hero-subtitle">Gentleness: The Remedy for Conflict</div>
-      <div id="status-line" class="status-line">Preparing voice reader...</div>
+      <div id="status-line" class="status-line">Ready for voice playback...</div>
     </header>
 
     <section id="malay-section" class="sermon-card" aria-label="Khutbah Jumaat dalam Bahasa Melayu">
@@ -335,6 +335,7 @@
     <button id="toggle-pause-btn" class="ctrl-btn primary" type="button">Pause</button>
     <button id="restart-btn" class="ctrl-btn" type="button">Restart</button>
     <button id="speed-btn" class="ctrl-btn" type="button" title="Change reading speed">Speed: 1.0x</button>
+    <button id="autoscroll-btn" class="ctrl-btn" type="button" title="Toggle auto scroll">Auto-Scroll: ON</button>
   </nav>
 
   <script>
@@ -383,6 +384,7 @@
     const togglePauseBtn = document.getElementById("toggle-pause-btn");
     const restartBtn = document.getElementById("restart-btn");
     const speedBtn = document.getElementById("speed-btn");
+    const autoscrollBtn = document.getElementById("autoscroll-btn");
 
     const synth = window.speechSynthesis;
     const allLines = [];
@@ -425,6 +427,7 @@
     let currentLineIndex = 0;
     let isReading = false;
     let isPaused = false;
+    let autoScrollEnabled = true;
     let sessionToken = 0;
     let nextLineTimer = null;
     let voices = [];
@@ -468,8 +471,8 @@
     }
 
     function scrollToLine(el, index) {
-      if (el) {
-        const targetY = el.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2.6;
+      if (autoScrollEnabled && el) {
+        const targetY = el.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.34;
         window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
       }
       const pct = Math.min(100, Math.max(0, ((index + 1) / allLines.length) * 100));
@@ -497,7 +500,7 @@
       currentLineIndex = index;
       const item = allLines[index];
       scrollToLine(item.element, index);
-      statusLine.textContent = `Reading ${item.sectionLabel} (${index + 1} / ${allLines.length})`;
+      statusLine.textContent = `Reading ${item.sectionLabel}`;
 
       if (!item.spokenText) {
         speakLineAt(index + 1, activeToken);
@@ -653,7 +656,7 @@
         clearTimer();
         synth.cancel();
         togglePauseBtn.textContent = "Resume";
-        statusLine.textContent = `Paused (${currentLineIndex + 1} / ${allLines.length})`;
+        statusLine.textContent = "Paused";
       } else {
         isPaused = false;
         isReading = true;
@@ -675,6 +678,14 @@
         sessionToken += 1;
         synth.cancel();
         speakLineAt(currentLineIndex, sessionToken);
+      }
+    });
+
+    autoscrollBtn.addEventListener("click", () => {
+      autoScrollEnabled = !autoScrollEnabled;
+      autoscrollBtn.textContent = `Auto-Scroll: ${autoScrollEnabled ? "ON" : "OFF"}`;
+      if (autoScrollEnabled && allLines[currentLineIndex]) {
+        scrollToLine(allLines[currentLineIndex].element, currentLineIndex);
       }
     });
 
