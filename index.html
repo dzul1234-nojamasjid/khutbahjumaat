@@ -1,776 +1,600 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="ms" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Khutbah Jumaat — Kelembutan Jiwa / Gentleness</title>
-  <style>
-    :root {
-      --bg-deep: #07110e;
-      --bg-mid: #0d1f19;
-      --card-bg: rgba(14, 31, 25, 0.82);
-      --card-border: rgba(229, 184, 105, 0.25);
-      --text-main: #f3efe6;
-      --text-muted: #b7c4be;
-      --gold: #e5b869;
-      --gold-soft: rgba(229, 184, 105, 0.16);
-      --emerald-soft: #6fd3b5;
-      --emerald-glow: rgba(52, 168, 120, 0.22);
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+<title>Khutbah Jumaat — Kelembutan Jiwa / Gentleness</title>
+<style>
+  :root {
+    --bg: #07110e;
+    --bg-accent: #0d1f19;
+    --surface: #0e1f19;
+    --text: #f3efe6;
+    --text-soft: #b7c4be;
+    --accent: #6fd3b5;
+    --accent-soft: #34a878;
+    --gold: #e5b869;
+    --gold-glow: rgba(229, 184, 105, 0.4);
+    --border: #1f3a2f;
+    --quote-bg: #10251c;
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    --btn-active-text: #0d120e;
+    --serif: "Georgia", "Times New Roman", "Noto Serif", serif;
+    --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--serif);
+    background:
+      radial-gradient(1200px 600px at 50% -10%, var(--bg-accent), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    line-height: 1.9;
+    overflow-x: hidden;
+  }
 
-    html {
-      scroll-behavior: smooth;
-    }
+  /* ---------- Control bar ---------- */
+  .controls {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(11, 25, 20, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    max-width: 96vw;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    font-family: var(--sans);
+  }
+  .controls::-webkit-scrollbar { display: none; }
 
-    body {
-      min-height: 100vh;
-      font-family: "Georgia", "Times New Roman", serif;
-      background:
-        radial-gradient(circle at 15% 10%, var(--emerald-glow), transparent 45%),
-        radial-gradient(circle at 85% 20%, rgba(229, 184, 105, 0.10), transparent 40%),
-        linear-gradient(175deg, var(--bg-deep) 0%, var(--bg-mid) 55%, #060e0b 100%);
-      color: var(--text-main);
-      line-height: 1.9;
-      overflow-x: hidden;
-      position: relative;
-    }
+  .seg {
+    display: inline-flex;
+    background: var(--bg-accent);
+    border-radius: 999px;
+    padding: 2px;
+    border: 1px solid var(--border);
+  }
 
-    .progress-wrap {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      z-index: 30;
-      pointer-events: none;
-    }
+  .seg button, .btn {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
 
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--emerald-soft), var(--gold));
-      transition: width 0.25s ease-out;
-    }
+  .seg button.active, .btn.active {
+    background: var(--accent);
+    color: var(--btn-active-text);
+    box-shadow: 0 2px 8px rgba(111, 211, 181, 0.45);
+  }
 
-    #leaves-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-    }
+  #btn-read {
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    background: var(--gold);
+    color: #111;
+    border: none;
+    box-shadow: 0 0 15px var(--gold-glow);
+    animation: pulse-gold 1.5s infinite;
+  }
 
-    .page-wrapper {
-      position: relative;
-      z-index: 2;
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 36px 20px 130px;
-    }
+  #btn-read:hover, #btn-read.active {
+    background: var(--accent-soft);
+    color: #111;
+    box-shadow: 0 0 15px rgba(111, 211, 181, 0.6);
+    animation: none;
+  }
 
-    .hero-header {
-      text-align: center;
-      padding: 30px 22px;
-      margin-bottom: 26px;
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(19, 43, 35, 0.82), rgba(10, 23, 18, 0.74));
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-    }
+  @keyframes pulse-gold {
+    0% { box-shadow: 0 0 0 0 var(--gold-glow); }
+    70% { box-shadow: 0 0 0 10px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
 
-    .ornament {
-      font-size: 1.5rem;
-      color: var(--gold);
-      letter-spacing: 0.4em;
-      margin-bottom: 10px;
-    }
+  .speed-panel {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    color: var(--text-soft);
+    padding: 0 4px;
+  }
+  .speed-panel.visible { display: inline-flex; }
+  .speed-panel input { width: 60px; accent-color: var(--accent); cursor: pointer; }
 
-    .badge {
-      display: inline-block;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      font-size: 0.76rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--gold);
-      background: var(--gold-soft);
-      border: 1px solid rgba(229, 184, 105, 0.35);
-      padding: 5px 14px;
-      border-radius: 999px;
-      margin-bottom: 14px;
-      font-weight: 600;
-    }
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px 40px;
+    position: relative;
+    overflow: hidden;
+  }
 
-    .hero-title {
-      font-size: clamp(1.55rem, 4vw, 2.3rem);
-      font-weight: 700;
-      color: #fffaf0;
-      line-height: 1.25;
-      margin-bottom: 8px;
-    }
+  .ornament { font-size: 1.6rem; color: var(--gold); letter-spacing: 0.5em; margin-bottom: 12px; }
+  .hero h1 { font-size: clamp(1.6rem, 5vw, 2.6rem); line-height: 1.25; margin: 0 0 12px; font-weight: 700; color: #fffaf0; }
+  .hero .kicker { font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.68rem; color: var(--accent); margin-bottom: 8px; }
+  .hero .date { font-family: var(--sans); font-size: 0.85rem; color: var(--text-soft); }
+  .divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px auto; }
 
-    .hero-subtitle {
-      font-size: clamp(1rem, 2.5vw, 1.22rem);
-      color: var(--emerald-soft);
-      font-weight: 500;
-      margin-bottom: 12px;
-    }
+  .onboarding-badge {
+    margin-top: 15px;
+    background: rgba(229, 184, 105, 0.14);
+    border: 1px dashed var(--gold);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--gold);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    animation: bob 2.2s ease-in-out infinite;
+  }
 
-    .status-line {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      min-height: 1.4em;
-    }
+  @keyframes bob { 0%, 100% { transform: translateY(0); opacity: 0.8; } 50% { transform: translateY(4px); opacity: 1; } }
 
-    .sermon-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 22px;
-      padding: 28px 24px;
-      margin-bottom: 26px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.38);
-    }
+  /* ---------- Article ---------- */
+  .article { max-width: 780px; margin: 0 auto; padding: 20px 20px 130px; }
 
-    @media (min-width: 640px) {
-      .sermon-card {
-        padding: 36px 38px;
-      }
-    }
+  .status-line {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    min-height: 1.4em;
+    text-align: center;
+    margin: 0 auto 24px;
+    max-width: 720px;
+  }
 
-    .section-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 20px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(229, 184, 105, 0.25);
-    }
+  .lang-block { display: none; }
+  .lang-block.active { display: block; animation: fadeUp 0.6s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-    .read-line {
-      font-size: clamp(1.06rem, 2.3vw, 1.22rem);
-      margin-bottom: 18px;
-      color: var(--text-main);
-    }
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(229, 184, 105, 0.25);
+  }
 
-    .read-line.heading-line {
-      font-weight: 700;
-      color: #fff6e0;
-      font-size: clamp(1.16rem, 2.5vw, 1.35rem);
-      margin-top: 10px;
-    }
+  .article p, .article h2 {
+    font-size: clamp(1.02rem, 2.3vw, 1.2rem);
+    margin: 0 0 16px;
+    line-height: 1.9;
+  }
 
-    .read-line.meta-line {
-      color: var(--text-muted);
-      font-size: 0.98rem;
-      letter-spacing: 0.03em;
-    }
+  .article h2 {
+    font-size: clamp(1.15rem, 3vw, 1.4rem);
+    color: #fff6e0;
+    font-weight: 700;
+    margin-top: 12px;
+  }
 
-    .divider-ornament {
-      text-align: center;
-      color: rgba(229, 184, 105, 0.6);
-      letter-spacing: 0.35em;
-      margin: 28px 0;
-      font-size: 0.95rem;
-      user-select: none;
-    }
+  .article p.meta-line {
+    font-family: var(--sans);
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+  }
 
-    .unlock-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 25;
-      background: rgba(5, 13, 10, 0.74);
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.25s ease, visibility 0.25s ease;
-    }
+  blockquote {
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--quote-bg);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    color: var(--text);
+  }
 
-    .unlock-overlay.visible {
-      opacity: 1;
-      visibility: visible;
-    }
+  .divider-ornament {
+    text-align: center;
+    color: rgba(229, 184, 105, 0.6);
+    letter-spacing: 0.35em;
+    margin: 28px 0;
+    font-size: 0.95rem;
+    user-select: none;
+  }
 
-    .unlock-box {
-      max-width: 420px;
-      width: 100%;
-      text-align: center;
-      background: linear-gradient(160deg, #132c23, #0a1813);
-      border: 1px solid rgba(229, 184, 105, 0.45);
-      border-radius: 22px;
-      padding: 32px 24px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
-    }
+  /* ---------- Reading Highlight (line-level only) ---------- */
+  .reading-highlight {
+    background-color: rgba(111, 211, 181, 0.18);
+    border-radius: 6px;
+    box-shadow: 0 0 0 4px rgba(111, 211, 181, 0.18);
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  blockquote.reading-highlight {
+    background-color: rgba(111, 211, 181, 0.14);
+    border-left-color: var(--accent);
+  }
 
-    .unlock-box h2 {
-      color: #fff8e7;
-      font-size: 1.35rem;
-      margin-bottom: 10px;
-    }
+  /* Suppress OS word-level highlight overlays where supported */
+  ::highlight(speech) { background: transparent !important; color: inherit !important; }
+  ::highlight(speech-word) { background: transparent !important; color: inherit !important; }
 
-    .unlock-box p {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 22px;
-    }
+  /* ---------- Scroll progress ---------- */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent), var(--gold)); z-index: 200; transition: width 0.1s linear; }
 
-    .unlock-btn {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: linear-gradient(135deg, #e5b869, #c8953e);
-      color: #091510;
-      border: none;
-      border-radius: 999px;
-      padding: 12px 26px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(229, 184, 105, 0.3);
-    }
+  .footer { text-align: center; padding: 30px 20px 60px; font-family: var(--sans); font-size: 0.75rem; color: var(--text-soft); border-top: 1px solid var(--border); max-width: 780px; margin: 0 auto; }
 
-    .controls-bar {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(11, 25, 20, 0.90);
-      border: 1px solid rgba(229, 184, 105, 0.32);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.52);
-      max-width: calc(100vw - 24px);
-      overflow-x: auto;
-      font-family: "Segoe UI", system-ui, sans-serif;
-    }
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gold);
+    color: #111;
+    padding: 12px 24px;
+    border-radius: 99px;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s ease;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    .ctrl-btn {
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
-      padding: 6px 13px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s ease, border-color 0.15s ease;
-    }
-
-    .ctrl-btn:hover {
-      background: var(--gold-soft);
-      border-color: rgba(229, 184, 105, 0.45);
-      color: #fff6df;
-    }
-
-    .ctrl-btn.primary {
-      background: rgba(229, 184, 105, 0.22);
-      border-color: rgba(229, 184, 105, 0.5);
-      color: var(--gold);
-    }
-  </style>
+  @media (max-width: 600px) {
+    .controls { border-radius: 16px; padding: 6px 8px; top: 8px; gap: 6px; }
+    .seg button { padding: 6px 8px; font-size: 0.7rem; }
+    #btn-read { padding: 6px 12px; }
+    .speed-panel input { width: 45px; }
+    .article { padding: 10px 16px 110px; }
+    .hero { padding-top: 80px; }
+  }
+</style>
 </head>
 <body>
-  <div class="progress-wrap" aria-hidden="true">
-    <div id="progress-bar" class="progress-bar"></div>
+
+<div class="progress" id="progress"></div>
+
+<!-- ============ CONTROL BAR ============ -->
+<div class="controls">
+  <div class="seg">
+    <button id="btn-ms" class="active">BM</button>
+    <button id="btn-en">EN</button>
   </div>
 
-  <canvas id="leaves-canvas" aria-hidden="true"></canvas>
+  <button id="btn-read" class="btn">▶ Play</button>
 
-  <div id="unlock-overlay" class="unlock-overlay" role="dialog" aria-modal="true" aria-labelledby="unlock-title">
-    <div class="unlock-box">
-      <div class="badge">Salam Jumaat</div>
-      <h2 id="unlock-title">Tap Anywhere to Begin Reading</h2>
-      <p>Your browser requires a tap to enable voice playback. Reading starts in Malay first, followed by English.</p>
-      <button id="overlay-start-btn" class="unlock-btn" type="button">Start Friday Sermon</button>
-    </div>
+  <div class="speed-panel" id="speed-panel">
+    <input type="range" id="speed" min="1" max="10" value="4" step="1" />
   </div>
+</div>
 
-  <main class="page-wrapper">
-    <header class="hero-header">
-      <div class="ornament">✦</div>
-      <div class="badge">Khutbah Jumaat • 10 Jamadilakhir 1448H</div>
-      <h1 class="hero-title">Kelembutan Jiwa: Penawar Ketegangan</h1>
-      <div class="hero-subtitle">Gentleness: The Remedy for Conflict</div>
-      <div id="status-line" class="status-line">Ready for voice playback...</div>
-    </header>
+<!-- Notifikasi Toast -->
+<div id="toast" class="toast">
+  <span>👆</span> Tekan ▶ Play untuk mula dengar
+</div>
 
-    <section id="malay-section" class="sermon-card" aria-label="Khutbah Jumaat dalam Bahasa Melayu">
-      <div class="section-tag">Bahasa Melayu (Pertama / First)</div>
-      <div id="malay-content"></div>
-    </section>
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="ornament">✦</div>
+  <p class="kicker">Khutbah Jumaat · 10 Jamadilakhir 1448H</p>
+  <h1>Kelembutan Jiwa:<br/>Penawar Ketegangan</h1>
+  <div class="divider"></div>
+  <p class="date">20 November 2026M</p>
 
-    <div class="divider-ornament" aria-hidden="true">✦ ✦ ✦</div>
+  <div class="onboarding-badge">
+    <span>🎧</span> Sila tekan butang kuning di atas
+  </div>
+</header>
 
-    <section id="english-section" class="sermon-card" aria-label="Friday Sermon in English">
-      <div class="section-tag">English (Kedua / Second)</div>
-      <div id="english-content"></div>
-    </section>
-  </main>
+<!-- ============ ARTICLE ============ -->
+<main class="article">
+  <div id="status-line" class="status-line">Ready for voice playback...</div>
 
-  <nav class="controls-bar" aria-label="Playback controls">
-    <button id="toggle-pause-btn" class="ctrl-btn primary" type="button">Pause</button>
-    <button id="restart-btn" class="ctrl-btn" type="button">Restart</button>
-    <button id="speed-btn" class="ctrl-btn" type="button" title="Change reading speed">Speed: 1.0x</button>
-  </nav>
+  <!-- ============ MALAY ============ -->
+  <section id="lang-ms" class="lang-block active" lang="ms">
+    <div class="section-tag">Bahasa Melayu (Pertama / First)</div>
 
-  <script>
-    const MALAY_LINES = [
-      { text: "Assalamualaikum wr wb selamat sejahtera..", type: "normal" },
-      { text: "Salam jumaat..", type: "normal" },
-      { text: "KUTBUH JUMAAT", type: "heading" },
-      { text: "10 JAMADILAKHIR 1448H / 20 NOVEMBER 2026M", type: "meta" },
-      { text: "KELEMBUTAN JIWA: PENAWAR KETEGANGAN", type: "heading" },
-      {
-        text: "Keindahan hati dan akhlak Nabi s.a.w, walaupun dikasari, beliau tidak membalas dengan kekerasan, atau menjadikan sifat kasar lelaki itu alasan untuk membalasnya dengan kekasaran juga. Sebaliknya, Nabi s.a.w. menunjukkan sifat yang menjadi penawar ketika berlaku ketegangan, iaitu kelembutan.",
-        type: "normal"
-      },
-      {
-        text: "Kelembutan jiwa Nabi s.a.w. tidak bererti kita perlu bersikap pasif dan menanggung penderitaan dalam diam. Kelembutan tidak bermakna kelemahan, bahkan ia sebenarnya adalah kekuatan. Kekuatan menahan marah dan kemampuan untuk bersabar.",
-        type: "normal"
-      },
-      {
-        text: "Nabi s.a.w. memiliki kekuatan fizikal dan kedudukan sosial untuk menghukum Badwi tersebut. Tetapi Nabi s.a.w. memilih untuk bersabar kerana tahu lelaki itu bertindak atas dasar kejahilan, bukan kerana berniat jahat. Namun apabila batasan dilanggar atau golongan yang lemah ditindas, Nabi s.a.w. adalah orang pertama yang berdiri tegas menuntut keadilan. Semoga dimudahkan semua urusan kita sekeluarga & diberikan kesembuhan pada yang sedang sakit, Aamiin 💕",
-        type: "normal"
-      }
-    ];
+    <p>Assalamualaikum wr wb selamat sejahtera.</p>
+    <p>Salam jumaat.</p>
+    <h2>KUTBUH JUMAAT</h2>
+    <p class="meta-line">10 JAMADILAKHIR 1448H / 20 NOVEMBER 2026M</p>
+    <h2>KELEMBUTAN JIWA: PENAWAR KETEGANGAN</h2>
+    <p>Keindahan hati dan akhlak Nabi s.a.w, walaupun dikasari, beliau tidak membalas dengan kekerasan, atau menjadikan sifat kasar lelaki itu alasan untuk membalasnya dengan kekasaran juga. Sebaliknya, Nabi s.a.w. menunjukkan sifat yang menjadi penawar ketika berlaku ketegangan, iaitu kelembutan.</p>
+    <p>Kelembutan jiwa Nabi s.a.w. tidak bererti kita perlu bersikap pasif dan menanggung penderitaan dalam diam. Kelembutan tidak bermakna kelemahan, bahkan ia sebenarnya adalah kekuatan. Kekuatan menahan marah dan kemampuan untuk bersabar.</p>
+    <p>Nabi s.a.w. memiliki kekuatan fizikal dan kedudukan sosial untuk menghukum Badwi tersebut. Tetapi Nabi s.a.w. memilih untuk bersabar kerana tahu lelaki itu bertindak atas dasar kejahilan, bukan kerana berniat jahat. Namun apabila batasan dilanggar atau golongan yang lemah ditindas, Nabi s.a.w. adalah orang pertama yang berdiri tegas menuntut keadilan. Semoga dimudahkan semua urusan kita sekeluarga & diberikan kesembuhan pada yang sedang sakit, Aamiin.</p>
+  </section>
 
-    const ENGLISH_LINES = [
-      { text: "GENTLENESS: THE REMEDY FOR CONFLICT", type: "heading" },
-      {
-        text: "The beauty of the Prophet’s heart and character; although he was treated harshly, he did not respond with harshness, nor did he treat the man’s harshness as an excuse to be harsh in return. Instead, the Prophet s.a.w. demonstrated the quality which is the remedy in times of tension: gentleness.",
-        type: "normal"
-      },
-      {
-        text: "The Prophet’s gentleness does not mean that we should be passive and suffer in silence. Gentleness is not weakness; it is in fact strength. What strength, dear congregants? The strength to restrain anger and the ability to be patient.",
-        type: "normal"
-      },
-      {
-        text: "The Prophet s.a.w. had the physical strength and social standing to punish the Bedouin. But he chose patience, because he knew the man acted out of ignorance, not out of ill intent. Yet when boundaries were crossed or the weak were oppressed, the Prophet s.a.w. was the first to stand firm and demand justice.",
-        type: "normal"
-      }
-    ];
+  <div class="divider-ornament">✦ ✦ ✦</div>
 
-    const malayContent = document.getElementById("malay-content");
-    const englishContent = document.getElementById("english-content");
-    const statusLine = document.getElementById("status-line");
-    const progressBar = document.getElementById("progress-bar");
-    const unlockOverlay = document.getElementById("unlock-overlay");
-    const overlayStartBtn = document.getElementById("overlay-start-btn");
-    const togglePauseBtn = document.getElementById("toggle-pause-btn");
-    const restartBtn = document.getElementById("restart-btn");
-    const speedBtn = document.getElementById("speed-btn");
+  <!-- ============ ENGLISH ============ -->
+  <section id="lang-en" class="lang-block" lang="en">
+    <div class="section-tag">English (Kedua / Second)</div>
 
-    const synth = window.speechSynthesis;
-    const allLines = [];
+    <h2>GENTLENESS: THE REMEDY FOR CONFLICT</h2>
+    <p>The beauty of the Prophet’s heart and character; although he was treated harshly, he did not respond with harshness, nor did he treat the man’s harshness as an excuse to be harsh in return. Instead, the Prophet s.a.w. demonstrated the quality which is the remedy in times of tension: gentleness.</p>
+    <p>The Prophet’s gentleness does not mean that we should be passive and suffer in silence. Gentleness is not weakness; it is in fact strength. What strength, dear congregants? The strength to restrain anger and the ability to be patient.</p>
+    <p>The Prophet s.a.w. had the physical strength and social standing to punish the Bedouin. But he chose patience, because he knew the man acted out of ignorance, not out of ill intent. Yet when boundaries were crossed or the weak were oppressed, the Prophet s.a.w. was the first to stand firm and demand justice.</p>
+  </section>
+</main>
 
-    function normalizeLineForSpeech(lineText, lang) {
-      return lineText
-        .replace(/💕/g, "")
-        .replace(/[()]/g, " ")
-        .replace(/\bwr\b/gi, "warahmatullahi")
-        .replace(/\bwb\.{0,2}\b/gi, "wabarakatuh")
-        .replace(/\bs\.a\.w\.?,?/gi, lang === "ms" ? "sallallahu alaihi wasallam" : "peace be upon him")
-        .replace(/&/g, lang === "ms" ? "dan" : "and")
-        .replace(/\s+/g, " ")
-        .trim();
+<footer class="footer">
+  Khutbah Jumaat · 10 Jamadilakhir 1448H / 20 November 2026M
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  const html = document.documentElement;
+
+  const state = {
+    lang: "ms",
+    isReading: false,
+    isPaused: false,
+    speakingNodes: [],
+    currentIndex: 0,
+    lastNode: null,
+    autoPlaySequence: false
+  };
+
+  const synth = window.speechSynthesis;
+  const statusLine = document.getElementById("status-line");
+
+  if (!synth) {
+    statusLine.textContent = "Speech synthesis unavailable in this browser.";
+  }
+
+  /* ---------- Language toggle ---------- */
+  const btnMS = document.getElementById("btn-ms");
+  const btnEN = document.getElementById("btn-en");
+  const blockMS = document.getElementById("lang-ms");
+  const blockEN = document.getElementById("lang-en");
+
+  function setLang(lang) {
+    if (state.lang === lang) return;
+    state.lang = lang;
+    const isMS = lang === "ms";
+
+    blockMS.classList.toggle("active", isMS);
+    blockEN.classList.toggle("active", !isMS);
+    btnMS.classList.toggle("active", isMS);
+    btnEN.classList.toggle("active", !isMS);
+    html.lang = lang;
+
+    if (state.isReading) {
+      stopReading();
     }
+  }
+  btnMS.addEventListener("click", () => setLang("ms"));
+  btnEN.addEventListener("click", () => setLang("en"));
 
-    function renderSectionLines(lines, container, lang, sectionLabel) {
-      lines.forEach((item) => {
-        const p = document.createElement("p");
-        p.className = "read-line";
-        if (item.type === "heading") p.classList.add("heading-line");
-        if (item.type === "meta") p.classList.add("meta-line");
-        p.textContent = item.text;
-        container.appendChild(p);
+  /* ---------- Text-to-Speech ---------- */
+  const btnRead = document.getElementById("btn-read");
+  const speedPanel = document.getElementById("speed-panel");
+  const speedInput = document.getElementById("speed");
 
-        allLines.push({
-          element: p,
-          spokenText: normalizeLineForSpeech(item.text, lang),
-          lang,
-          sectionLabel
-        });
-      });
+  function getVoice(langCode) {
+    const voices = synth.getVoices();
+    return voices.find(v => v.lang.toLowerCase().includes(langCode.toLowerCase())) || null;
+  }
+
+  function highlightNode(node) {
+    if (state.lastNode) state.lastNode.classList.remove("reading-highlight");
+    if (node) {
+      node.classList.add("reading-highlight");
+      const y = node.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 3);
+      window.scrollTo({ top: y, behavior: "smooth" });
+      state.lastNode = node;
     }
+  }
 
-    renderSectionLines(MALAY_LINES, malayContent, "ms", "Malay");
-    renderSectionLines(ENGLISH_LINES, englishContent, "en", "English");
+  function startReading(playWholeSequence = false) {
+    synth.cancel();
+    state.isReading = true;
+    state.isPaused = false;
+    state.currentIndex = 0;
+    state.autoPlaySequence = playWholeSequence;
 
-    const speeds = [0.85, 1.0, 1.15];
-    let speedIndex = 1;
-    let currentLineIndex = 0;
-    let isReading = false;
-    let isPaused = false;
-    let sessionToken = 0;
-    let nextLineTimer = null;
-    let voices = [];
+    const section = state.lang === "ms" ? blockMS : blockEN;
+    const elements = section.querySelectorAll("p, h2, blockquote");
+    state.speakingNodes = Array.from(elements);
 
-    function loadVoices() {
-      if (!synth) return [];
-      voices = synth.getVoices();
-      return voices;
-    }
+    btnRead.textContent = "⏸ Pause";
+    btnRead.classList.add("active");
+    speedPanel.classList.add("visible");
 
-    if (synth) {
-      loadVoices();
-      synth.onvoiceschanged = loadVoices;
-    }
+    speakNextNode();
+  }
 
-    function getVoiceForLang(langCode) {
-      const list = voices.length ? voices : loadVoices();
-      if (!list.length) return null;
+  function speakNextNode() {
+    if (!state.isReading || state.isPaused) return;
 
-      if (langCode === "ms") {
-        return (
-          list.find((v) => /^ms(-|_|$)/i.test(v.lang)) ||
-          list.find((v) => /malay|melayu/i.test(v.name)) ||
-          list.find((v) => /^id(-|_|$)/i.test(v.lang)) ||
-          null
-        );
-      }
+    if (state.currentIndex >= state.speakingNodes.length) {
+      if (state.autoPlaySequence && state.lang === "ms") {
+        // Switch to English after Malay finishes
+        state.lang = "en";
+        blockMS.classList.remove("active");
+        blockEN.classList.add("active");
+        btnMS.classList.remove("active");
+        btnEN.classList.add("active");
+        html.lang = "en";
 
-      return (
-        list.find((v) => /^en-(GB|SG|AU)/i.test(v.lang)) ||
-        list.find((v) => /^en(-|_|$)/i.test(v.lang)) ||
-        null
-      );
-    }
+        const elements = blockEN.querySelectorAll("p, h2, blockquote");
+        state.speakingNodes = Array.from(elements);
+        state.currentIndex = 0;
 
-    function clearTimer() {
-      if (nextLineTimer) {
-        clearTimeout(nextLineTimer);
-        nextLineTimer = null;
-      }
-    }
-
-    // Scrolls smoothly to the current line and updates progress bar
-    function scrollToLine(el, index) {
-      if (el) {
-        const targetY = el.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.34;
-        window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
-      }
-      const pct = Math.min(100, Math.max(0, ((index + 1) / allLines.length) * 100));
-      progressBar.style.width = `${pct.toFixed(1)}%`;
-    }
-
-    function speakLineAt(index, activeToken) {
-      clearTimer();
-      if (activeToken !== sessionToken) return;
-
-      if (!synth) {
-        statusLine.textContent = "Text-to-speech is not supported on this browser.";
+        speakNextNode();
         return;
       }
 
-      if (index >= allLines.length) {
-        isReading = false;
-        isPaused = false;
-        progressBar.style.width = "100%";
-        togglePauseBtn.textContent = "Replay";
-        statusLine.textContent = "Completed reading Malay and English sermon.";
-        return;
-      }
-
-      currentLineIndex = index;
-      const item = allLines[index];
-      scrollToLine(item.element, index);
-      statusLine.textContent = `Reading ${item.sectionLabel}`;
-
-      if (!item.spokenText) {
-        speakLineAt(index + 1, activeToken);
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(item.spokenText);
-      const chosenVoice = getVoiceForLang(item.lang);
-      utterance.lang = chosenVoice ? chosenVoice.lang : (item.lang === "ms" ? "ms-MY" : "en-US");
-      if (chosenVoice) utterance.voice = chosenVoice;
-      utterance.rate = speeds[speedIndex];
-      utterance.pitch = 1.0;
-
-      let lineDone = false;
-      function finishLine() {
-        if (lineDone || activeToken !== sessionToken) return;
-        lineDone = true;
-        clearTimer();
-
-        if (!isReading || isPaused) return;
-
-        const nextIdx = index + 1;
-        const switchingToEnglish =
-          nextIdx < allLines.length && allLines[nextIdx].lang !== item.lang;
-
-        if (switchingToEnglish) {
-          statusLine.textContent = "Switching to English...";
-        }
-
-        nextLineTimer = setTimeout(() => {
-          if (activeToken === sessionToken && isReading && !isPaused) {
-            speakLineAt(nextIdx, activeToken);
-          }
-        }, switchingToEnglish ? 750 : 350);
-      }
-
-      utterance.onstart = () => {
-        if (activeToken !== sessionToken) return;
-        unlockOverlay.classList.remove("visible");
-        isReading = true;
-        isPaused = false;
-        togglePauseBtn.textContent = "Pause";
-      };
-
-      utterance.onend = finishLine;
-
-      utterance.onerror = (e) => {
-        if (activeToken !== sessionToken) return;
-        if (e.error === "interrupted" || e.error === "canceled") return;
-
-        if (e.error === "not-allowed") {
-          clearTimer();
-          isReading = false;
-          unlockOverlay.classList.add("visible");
-          statusLine.textContent = "Tap anywhere to allow voice playback.";
-          return;
-        }
-
-        finishLine();
-      };
-
-      synth.speak(utterance);
+      statusLine.textContent = "Completed reading Malay and English sermon.";
+      stopReading();
+      return;
     }
 
-    function startFromBeginning() {
-      if (!synth) return;
-      clearTimer();
-      sessionToken += 1;
-      const myToken = sessionToken;
+    const node = state.speakingNodes[state.currentIndex];
+    highlightNode(node);
+
+    // Speak the exact rendered text — no normalization. Prevents OS word-level highlight.
+    const textToSpeak = node.textContent.trim();
+    if (!textToSpeak) {
+      state.currentIndex++;
+      return speakNextNode();
+    }
+
+    statusLine.textContent = `Reading ${state.lang === "ms" ? "Malay" : "English"}`;
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    const langCode = state.lang === "ms" ? "ms-MY" : "en-US";
+    utterance.lang = langCode;
+
+    const voice = getVoice(langCode);
+    if (voice) utterance.voice = voice;
+
+    const currentSpeed = Number(speedInput.value);
+    utterance.rate = 0.6 + (currentSpeed * 0.1);
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => {
+      if (state.isReading) {
+        btnRead.textContent = "⏸ Pause";
+        btnRead.classList.add("active");
+      }
+    };
+
+    utterance.onend = () => {
+      if (state.isReading && !state.isPaused) {
+        state.currentIndex++;
+        speakNextNode();
+      }
+    };
+
+    utterance.onerror = (e) => {
+      if (e.error !== "interrupted" && e.error !== "canceled") {
+        console.warn("Speech error:", e);
+        stopReading();
+      }
+    };
+
+    synth.speak(utterance);
+  }
+
+  function pauseReading() {
+    state.isPaused = true;
+    synth.cancel();
+    btnRead.textContent = "▶ Play";
+    btnRead.classList.remove("active");
+    statusLine.textContent = "Paused";
+  }
+
+  function resumeReading() {
+    state.isPaused = false;
+    btnRead.textContent = "⏸ Pause";
+    btnRead.classList.add("active");
+    speakNextNode();
+  }
+
+  function stopReading() {
+    state.isReading = false;
+    state.isPaused = false;
+    state.autoPlaySequence = false;
+    synth.cancel();
+    btnRead.textContent = "▶ Play";
+    btnRead.classList.remove("active");
+    speedPanel.classList.remove("visible");
+    if (state.lastNode) {
+      state.lastNode.classList.remove("reading-highlight");
+      state.lastNode = null;
+    }
+  }
+
+  btnRead.addEventListener("click", () => {
+    if (state.isReading) {
+      if (state.isPaused) resumeReading();
+      else pauseReading();
+    } else {
+      startReading(true);
+    }
+  });
+
+  speedInput.addEventListener("input", () => {
+    if (state.isReading && !state.isPaused) {
       synth.cancel();
-      progressBar.style.width = "0%";
-      currentLineIndex = 0;
-      isReading = true;
-      isPaused = false;
-      togglePauseBtn.textContent = "Pause";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      speakLineAt(0, myToken);
+      setTimeout(speakNextNode, 100);
     }
+  });
 
-    function attemptAutoStart() {
-      if (!synth) {
-        statusLine.textContent = "Speech synthesis unavailable in this browser.";
-        return;
-      }
+  /* ---------- Progress bar (scroll) ---------- */
+  const progress = document.getElementById("progress");
+  function updateProgress() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    progress.style.width = pct.toFixed(2) + "%";
+  }
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  window.addEventListener("resize", updateProgress);
+  updateProgress();
 
-      try {
-        synth.cancel();
-        sessionToken += 1;
-        const myToken = sessionToken;
-        const probe = new SpeechSynthesisUtterance(" ");
-        probe.volume = 0.01;
+  /* ---------- Toast on load ---------- */
+  const toast = document.getElementById("toast");
+  function showToast(message, duration = 2500) {
+    toast.innerHTML = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), duration);
+  }
 
-        probe.onstart = () => {
-          if (myToken !== sessionToken) return;
-          synth.cancel();
-          unlockOverlay.classList.remove("visible");
-          startFromBeginning();
-        };
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      showToast("<span>👆</span> Sila tekan ▶ Play di atas", 5000);
+      btnRead.style.animation = "pulse-gold 1s infinite";
+    }, 1000);
+  });
 
-        probe.onerror = () => {
-          if (myToken !== sessionToken) return;
-          isReading = false;
-          togglePauseBtn.textContent = "Start";
-          statusLine.textContent = "Tap anywhere to begin auto-reading.";
-          unlockOverlay.classList.add("visible");
-        };
+  if (synth) {
+    synth.onvoiceschanged = () => {
+      getVoice(state.lang === "ms" ? "ms-MY" : "en-US");
+    };
+  }
 
-        synth.speak(probe);
-
-        setTimeout(() => {
-          if (myToken === sessionToken && !isReading && !isPaused) {
-            unlockOverlay.classList.add("visible");
-            statusLine.textContent = "Tap anywhere to begin auto-reading.";
-          }
-        }, 450);
-      } catch (_) {
-        unlockOverlay.classList.add("visible");
-      }
-    }
-
-    function handleUnlockStart() {
-      unlockOverlay.classList.remove("visible");
-      if (isPaused) {
-        isPaused = false;
-        isReading = true;
-        togglePauseBtn.textContent = "Pause";
-        sessionToken += 1;
-        speakLineAt(currentLineIndex, sessionToken);
-        return;
-      }
-      if (!isReading) {
-        startFromBeginning();
-      }
-    }
-
-    unlockOverlay.addEventListener("click", handleUnlockStart);
-    overlayStartBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      handleUnlockStart();
-    });
-
-    togglePauseBtn.addEventListener("click", () => {
-      if (!synth) return;
-
-      if (!isReading && !isPaused) {
-        startFromBeginning();
-        return;
-      }
-
-      if (!isPaused) {
-        isPaused = true;
-        isReading = false;
-        clearTimer();
-        synth.cancel();
-        togglePauseBtn.textContent = "Resume";
-        statusLine.textContent = "Paused";
-      } else {
-        isPaused = false;
-        isReading = true;
-        togglePauseBtn.textContent = "Pause";
-        sessionToken += 1;
-        speakLineAt(currentLineIndex, sessionToken);
-      }
-    });
-
-    restartBtn.addEventListener("click", () => {
-      startFromBeginning();
-    });
-
-    speedBtn.addEventListener("click", () => {
-      speedIndex = (speedIndex + 1) % speeds.length;
-      const rate = speeds[speedIndex];
-      speedBtn.textContent = `Speed: ${rate.toFixed(2).replace(/\.00$/, ".0")}x`;
-      if (isReading) {
-        sessionToken += 1;
-        synth.cancel();
-        speakLineAt(currentLineIndex, sessionToken);
-      }
-    });
-
-    window.addEventListener("beforeunload", () => {
-      clearTimer();
-      if (synth) synth.cancel();
-    });
-
-    // Animasi daun gugur di latar belakang
-    const canvas = document.getElementById("leaves-canvas");
-    const ctx = canvas.getContext("2d");
-    let leaves = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    const leafPalette = [
-      "rgba(229, 184, 105, 0.52)",
-      "rgba(196, 148, 72, 0.42)",
-      "rgba(111, 211, 181, 0.34)",
-      "rgba(168, 184, 108, 0.40)"
-    ];
-
-    function createLeaves() {
-      const count = Math.min(34, Math.max(14, Math.floor(window.innerWidth / 42)));
-      leaves = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: 7 + Math.random() * 9,
-        speedY: 0.45 + Math.random() * 0.85,
-        swayAmp: 0.6 + Math.random() * 1.4,
-        swaySpeed: 0.008 + Math.random() * 0.015,
-        phase: Math.random() * Math.PI * 2,
-        angle: Math.random() * Math.PI * 2,
-        spin: (Math.random() - 0.5) * 0.025,
-        color: leafPalette[Math.floor(Math.random() * leafPalette.length)]
-      }));
-    }
-
-    function drawLeaf(leaf) {
-      ctx.save();
-      ctx.translate(leaf.x, leaf.y);
-      ctx.rotate(leaf.angle);
-      ctx.fillStyle = leaf.color;
-
-      ctx.beginPath();
-      ctx.moveTo(0, -leaf.size);
-      ctx.quadraticCurveTo(leaf.size * 0.85, -leaf.size * 0.15, 0, leaf.size);
-      ctx.quadraticCurveTo(-leaf.size * 0.85, -leaf.size * 0.15, 0, -leaf.size);
-      ctx.fill();
-
-      ctx.strokeStyle = "rgba(255, 244, 214, 0.16)";
-      ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      ctx.moveTo(0, -leaf.size * 0.75);
-      ctx.lineTo(0, leaf.size * 0.8);
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    function animateLeaves() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const leaf of leaves) {
-        leaf.phase += leaf.swaySpeed;
-        leaf.x += Math.sin(leaf.phase) * leaf.swayAmp;
-        leaf.y += leaf.speedY;
-        leaf.angle += leaf.spin;
-
-        if (leaf.y > canvas.height + 24) {
-          leaf.y = -24;
-          leaf.x = Math.random() * canvas.width;
-        }
-        if (leaf.x < -30) leaf.x = canvas.width + 30;
-        if (leaf.x > canvas.width + 30) leaf.x = -30;
-
-        drawLeaf(leaf);
-      }
-      requestAnimationFrame(animateLeaves);
-    }
-
-    resizeCanvas();
-    createLeaves();
-    animateLeaves();
-
-    window.addEventListener("resize", () => {
-      resizeCanvas();
-      createLeaves();
-    });
-
-    window.addEventListener("load", () => {
-      setTimeout(attemptAutoStart, 250);
-    });
-  </script>
+})();
+</script>
 </body>
 </html>
