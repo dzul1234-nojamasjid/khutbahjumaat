@@ -8,15 +8,15 @@
     :root {
       --bg-deep: #07110e;
       --bg-mid: #0d1f19;
-      --card-bg: rgba(14, 31, 25, 0.78);
-      --card-border: rgba(229, 184, 105, 0.22);
+      --card-bg: rgba(14, 31, 25, 0.80);
+      --card-border: rgba(229, 184, 105, 0.24);
       --text-main: #f3efe6;
       --text-muted: #b7c4be;
       --gold: #e5b869;
       --gold-soft: rgba(229, 184, 105, 0.16);
       --emerald-glow: rgba(52, 168, 120, 0.22);
-      --word-active-bg: rgba(229, 184, 105, 0.28);
-      --word-active-text: #fff7e0;
+      --word-active-bg: rgba(229, 184, 105, 0.30);
+      --word-active-text: #fff9e8;
     }
 
     * {
@@ -25,21 +25,36 @@
       padding: 0;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       min-height: 100vh;
       font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
       background:
         radial-gradient(circle at 15% 10%, var(--emerald-glow), transparent 45%),
-        radial-gradient(circle at 85% 20%, rgba(229, 184, 105, 0.09), transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(229, 184, 105, 0.10), transparent 40%),
         linear-gradient(175deg, var(--bg-deep) 0%, var(--bg-mid) 55%, #060e0b 100%);
       color: var(--text-main);
-      line-height: 1.85;
+      line-height: 1.88;
       overflow-x: hidden;
       position: relative;
+    }
+
+    /* Garis kemajuan bacaan di bahagian paling atas */
+    .reading-progress-wrap {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    .reading-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #c7933d, #f2cb80);
+      transition: width 0.2s ease-out;
     }
 
     #leaves-canvas {
@@ -56,7 +71,7 @@
       z-index: 2;
       max-width: 780px;
       margin: 0 auto;
-      padding: 36px 20px 120px;
+      padding: 36px 20px 128px;
     }
 
     .hero-header {
@@ -64,7 +79,7 @@
       padding: 28px 20px 32px;
       margin-bottom: 24px;
       border-radius: 22px;
-      background: linear-gradient(180deg, rgba(19, 43, 35, 0.72), rgba(10, 23, 18, 0.65));
+      background: linear-gradient(180deg, rgba(19, 43, 35, 0.78), rgba(10, 23, 18, 0.70));
       border: 1px solid var(--card-border);
       backdrop-filter: blur(10px);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
@@ -136,15 +151,15 @@
     }
 
     .sermon-line {
-      font-size: clamp(1.05rem, 2.3vw, 1.22rem);
-      margin-bottom: 16px;
+      font-size: clamp(1.06rem, 2.3vw, 1.24rem);
+      margin-bottom: 18px;
       color: var(--text-main);
     }
 
     .sermon-line.heading-line {
       font-weight: 700;
       color: #fff6e0;
-      font-size: clamp(1.14rem, 2.5vw, 1.35rem);
+      font-size: clamp(1.16rem, 2.5vw, 1.36rem);
       margin-top: 8px;
     }
 
@@ -156,7 +171,7 @@
 
     .divider-ornament {
       text-align: center;
-      color: rgba(229, 184, 105, 0.55);
+      color: rgba(229, 184, 105, 0.58);
       letter-spacing: 0.35em;
       margin: 28px 0;
       font-size: 0.95rem;
@@ -166,27 +181,27 @@
     .word {
       display: inline;
       border-radius: 5px;
-      padding: 1px 2px;
-      transition: background-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+      padding: 1px 3px;
+      transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
     }
 
     .word.active {
       background-color: var(--word-active-bg);
       color: var(--word-active-text);
-      box-shadow: 0 0 0 2px rgba(229, 184, 105, 0.35);
+      box-shadow: 0 0 0 2px rgba(229, 184, 105, 0.42);
       font-weight: 600;
     }
 
     .word.spoken {
-      color: rgba(243, 239, 230, 0.88);
+      color: rgba(243, 239, 230, 0.90);
     }
 
-    /* Tap-to-start overlay when browser blocks autoplay */
+    /* Overlay sentuh untuk aktifkan suara jika disekat pelayar */
     .unlock-overlay {
       position: fixed;
       inset: 0;
       z-index: 20;
-      background: rgba(5, 13, 10, 0.72);
+      background: rgba(5, 13, 10, 0.74);
       backdrop-filter: blur(6px);
       display: flex;
       align-items: center;
@@ -237,7 +252,7 @@
       box-shadow: 0 8px 24px rgba(229, 184, 105, 0.3);
     }
 
-    /* Floating subtle controls */
+    /* Kawalan terapung di bawah */
     .controls-bar {
       position: fixed;
       bottom: 18px;
@@ -249,10 +264,10 @@
       gap: 8px;
       padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(11, 25, 20, 0.88);
-      border: 1px solid rgba(229, 184, 105, 0.3);
+      background: rgba(11, 25, 20, 0.90);
+      border: 1px solid rgba(229, 184, 105, 0.32);
       backdrop-filter: blur(12px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.52);
       max-width: calc(100vw - 24px);
       overflow-x: auto;
     }
@@ -277,20 +292,24 @@
     }
 
     .ctrl-btn.primary {
-      background: rgba(229, 184, 105, 0.2);
+      background: rgba(229, 184, 105, 0.22);
       border-color: rgba(229, 184, 105, 0.5);
       color: var(--gold);
     }
   </style>
 </head>
 <body>
+  <div class="reading-progress-wrap" aria-hidden="true">
+    <div id="reading-progress-bar" class="reading-progress-bar"></div>
+  </div>
+
   <canvas id="leaves-canvas" aria-hidden="true"></canvas>
 
   <div id="unlock-overlay" class="unlock-overlay" role="dialog" aria-modal="true" aria-labelledby="unlock-title">
     <div class="unlock-box">
       <div class="badge">Salam Jumaat</div>
       <h2 id="unlock-title">Tap Anywhere to Begin Reading</h2>
-      <p>Your browser requires a tap to enable voice playback. Reading will start in Malay first, followed by English.</p>
+      <p>Your browser requires a tap to enable voice playback. Reading starts in Malay first, followed by English.</p>
       <button id="overlay-start-btn" class="unlock-btn" type="button">Start Friday Sermon</button>
     </div>
   </div>
@@ -320,11 +339,12 @@
     <button id="toggle-pause-btn" class="ctrl-btn primary" type="button">Pause</button>
     <button id="restart-btn" class="ctrl-btn" type="button">Restart</button>
     <button id="speed-btn" class="ctrl-btn" type="button" title="Change reading speed">Speed: 1.0x</button>
+    <button id="autoscroll-btn" class="ctrl-btn" type="button" title="Toggle auto scroll">Auto-Scroll: ON</button>
   </nav>
 
   <script>
     // =========================================================================
-    // 1. SERMON DATA (MALAY FIRST, ENGLISH SECOND)
+    // 1. TEKS KHUTBAH (BAHASA MELAYU DAHULU, KEMUDIAN BAHASA INGGERIS)
     // =========================================================================
     const MALAY_BLOCKS = [
       { text: "Assalamualaikum wr wb selamat sejahtera..", type: "normal" },
@@ -363,18 +383,20 @@
     ];
 
     // =========================================================================
-    // 2. RENDER TEXT WITH WORD-LEVEL SPANS FOR HIGHLIGHTING & AUTO-SCROLL
+    // 2. SUSUN PERKATAAN DALAM SPAN UNTUK SOROTAN & AUTO-SCROLL
     // =========================================================================
     const malayContainer = document.getElementById("malay-content");
     const englishContainer = document.getElementById("english-content");
     const statusLine = document.getElementById("status-line");
+    const progressBar = document.getElementById("reading-progress-bar");
     const unlockOverlay = document.getElementById("unlock-overlay");
     const overlayStartBtn = document.getElementById("overlay-start-btn");
     const togglePauseBtn = document.getElementById("toggle-pause-btn");
     const restartBtn = document.getElementById("restart-btn");
     const speedBtn = document.getElementById("speed-btn");
+    const autoscrollBtn = document.getElementById("autoscroll-btn");
 
-    const allSpokenItems = []; // { element, cleanWord, lang, sectionLabel }
+    const allSpokenItems = [];
 
     function normalizeWordForSpeech(rawWord, lang) {
       const cleaned = rawWord
@@ -433,7 +455,60 @@
     renderBlocks(ENGLISH_BLOCKS, englishContainer, "en", "English");
 
     // =========================================================================
-    // 3. SPEECH SYNTHESIS WITH AUTO-SCROLL & FALLBACK TRACKING
+    // 3. AUTO-SCROLL LANCAR (REQUESTANIMATIONFRAME)
+    // =========================================================================
+    let autoScrollEnabled = true;
+    let scrollAnimFrame = null;
+
+    function animateScrollToY(targetY) {
+      if (scrollAnimFrame) {
+        cancelAnimationFrame(scrollAnimFrame);
+        scrollAnimFrame = null;
+      }
+
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const clampedTarget = Math.min(maxScroll, Math.max(0, targetY));
+      const startY = window.scrollY || window.pageYOffset || 0;
+      const distance = clampedTarget - startY;
+
+      if (Math.abs(distance) < 4) return;
+
+      const duration = 360;
+      const startTime = performance.now();
+
+      function step(now) {
+        if (!autoScrollEnabled) return;
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        // Ease out cubic
+        const ease = 1 - Math.pow(1 - t, 3);
+        window.scrollTo(0, startY + distance * ease);
+
+        if (t < 1) {
+          scrollAnimFrame = requestAnimationFrame(step);
+        } else {
+          scrollAnimFrame = null;
+        }
+      }
+
+      scrollAnimFrame = requestAnimationFrame(step);
+    }
+
+    function autoScrollToElement(el) {
+      if (!autoScrollEnabled || !el) return;
+      const rect = el.getBoundingClientRect();
+      const desiredTop = window.innerHeight * 0.42;
+      const delta = rect.top - desiredTop;
+
+      // Gerakkan scroll apabila perkataan menyimpang lebih daripada 55px dari garis selesa
+      if (Math.abs(delta) > 55) {
+        const currentScroll = window.scrollY || window.pageYOffset || 0;
+        animateScrollToY(currentScroll + delta);
+      }
+    }
+
+    // =========================================================================
+    // 4. SPEECH SYNTHESIS + PENJEJAK PERKATAAN DEMI PERKATAAN
     // =========================================================================
     const speeds = [0.85, 1.0, 1.15];
     let speedIndex = 1;
@@ -441,7 +516,7 @@
     let isPlaying = false;
     let isPaused = false;
     let sessionToken = 0;
-    let fallbackTimer = null;
+    let stepTimer = null;
     let voicesCache = [];
 
     function loadVoices() {
@@ -475,11 +550,16 @@
       );
     }
 
-    function clearFallbackTimer() {
-      if (fallbackTimer) {
-        clearTimeout(fallbackTimer);
-        fallbackTimer = null;
+    function clearStepTimer() {
+      if (stepTimer) {
+        clearTimeout(stepTimer);
+        stepTimer = null;
       }
+    }
+
+    function updateProgress(index) {
+      const pct = Math.min(100, Math.max(0, ((index + 1) / allSpokenItems.length) * 100));
+      progressBar.style.width = `${pct.toFixed(1)}%`;
     }
 
     function clearWordHighlights(upToIndex = -1) {
@@ -491,10 +571,15 @@
           item.element.classList.remove("spoken");
         }
       });
+      if (upToIndex < 0) {
+        progressBar.style.width = "0%";
+      }
     }
 
-    function highlightWord(index) {
+    function markActiveWord(index, sectionLabel) {
       if (index < 0 || index >= allSpokenItems.length) return;
+      currentIndex = index;
+
       allSpokenItems.forEach((item, idx) => {
         if (idx < index) {
           item.element.classList.remove("active");
@@ -507,17 +592,9 @@
         }
       });
 
-      const targetEl = allSpokenItems[index].element;
-      const rect = targetEl.getBoundingClientRect();
-      const idealTop = window.innerHeight * 0.36;
-      const idealBottom = window.innerHeight * 0.68;
-
-      if (rect.top < idealTop || rect.bottom > idealBottom) {
-        targetEl.scrollIntoView({
-          behavior: "smooth",
-          block: "center"
-        });
-      }
+      updateProgress(index);
+      statusLine.textContent = `Reading ${sectionLabel} • Word ${index + 1} of ${allSpokenItems.length}`;
+      autoScrollToElement(allSpokenItems[index].element);
     }
 
     function groupConsecutiveByLang(startIdx) {
@@ -542,8 +619,15 @@
       };
     }
 
+    function estimateWordMs(token, rate) {
+      const cleanLen = token.replace(/[^a-zA-Z0-9]/g, "").length || 3;
+      const pauseExtra = /[.!?,:;…]$/.test(token) ? 140 : 0;
+      const rawMs = Math.max(190, cleanLen * 56 + pauseExtra);
+      return Math.round(rawMs / rate);
+    }
+
     function speakFrom(startIndex, activeToken) {
-      clearFallbackTimer();
+      clearStepTimer();
 
       if (activeToken !== sessionToken) return;
 
@@ -555,6 +639,7 @@
       if (startIndex >= allSpokenItems.length) {
         isPlaying = false;
         isPaused = false;
+        progressBar.style.width = "100%";
         togglePauseBtn.textContent = "Replay";
         statusLine.textContent = "Completed reading Malay and English sermon.";
         return;
@@ -564,44 +649,66 @@
       const textToSpeak = segment.items.map((x) => x.token).join(" ");
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       const chosenVoice = pickVoice(segment.lang);
+      const currentRate = speeds[speedIndex];
 
       utterance.lang = chosenVoice ? chosenVoice.lang : (segment.lang === "ms" ? "ms-MY" : "en-US");
       if (chosenVoice) utterance.voice = chosenVoice;
-      utterance.rate = speeds[speedIndex];
+      utterance.rate = currentRate;
       utterance.pitch = 1.0;
 
-      // Map character offsets in `textToSpeak` back to word indices in `segment.items`
       const charRanges = [];
       let runningPos = 0;
       segment.items.forEach((entry, localIdx) => {
         const start = runningPos;
         const end = start + entry.token.length;
-        charRanges.push({ start, end, localIdx, globalIndex: entry.globalIndex });
+        charRanges.push({ start, end, localIdx, globalIndex: entry.globalIndex, token: entry.token });
         runningPos = end + 1;
       });
 
       let boundaryFired = false;
       let localPointer = 0;
+      let segmentFinished = false;
 
-      function advanceWordVisual(targetGlobalIndex) {
-        currentIndex = targetGlobalIndex;
-        highlightWord(targetGlobalIndex);
-        statusLine.textContent = `Reading ${segment.sectionLabel} (${currentIndex + 1} / ${allSpokenItems.length} words)`;
-      }
-
-      function scheduleFallbackStep() {
-        clearFallbackTimer();
-        if (!isPlaying || isPaused || activeToken !== sessionToken) return;
+      function runTimerStep() {
+        clearStepTimer();
+        if (segmentFinished || activeToken !== sessionToken || !isPlaying || isPaused) return;
         if (localPointer >= charRanges.length) return;
 
-        const currentEntry = charRanges[localPointer];
-        advanceWordVisual(currentEntry.globalIndex);
-
-        const baseMs = Math.max(170, currentEntry.token.length * 46);
-        const adjustedMs = baseMs / speeds[speedIndex];
+        const entry = charRanges[localPointer];
+        markActiveWord(entry.globalIndex, segment.sectionLabel);
         localPointer++;
 
-        fallbackTimer = setTimeout(scheduleFallbackStep, adjustedMs);
+        if (localPointer < charRanges.length) {
+          const delay = estimateWordMs(entry.token, currentRate);
+          stepTimer = setTimeout(runTimerStep, delay);
+        }
+      }
+
+      function moveToNextSegment() {
+        if (segmentFinished || activeToken !== sessionToken) return;
+        segmentFinished = true;
+        clearStepTimer();
+
+        segment.items.forEach((x) => {
+          allSpokenItems[x.globalIndex].element.classList.remove("active");
+          allSpokenItems[x.globalIndex].element.classList.add("spoken");
+        });
+
+        currentIndex = segment.nextGlobalIndex;
+        if (currentIndex < allSpokenItems.length) {
+          statusLine.textContent = "Switching to English...";
+          stepTimer = setTimeout(() => {
+            if (activeToken === sessionToken && isPlaying && !isPaused) {
+              speakFrom(currentIndex, activeToken);
+            }
+          }, 600);
+        } else {
+          isPlaying = false;
+          isPaused = false;
+          progressBar.style.width = "100%";
+          togglePauseBtn.textContent = "Replay";
+          statusLine.textContent = "Completed reading Malay and English sermon.";
+        }
       }
 
       utterance.onstart = () => {
@@ -610,22 +717,25 @@
         isPlaying = true;
         isPaused = false;
         togglePauseBtn.textContent = "Pause";
-        advanceWordVisual(segment.items[0].globalIndex);
 
-        // If boundary events don't fire within 900ms (common on some mobile engines), use timer fallback
-        fallbackTimer = setTimeout(() => {
-          if (!boundaryFired && activeToken === sessionToken && isPlaying && !isPaused) {
-            localPointer = 1;
-            scheduleFallbackStep();
-          }
-        }, 900);
+        markActiveWord(segment.items[0].globalIndex, segment.sectionLabel);
+        localPointer = 1;
+
+        // Mulakan penjejak sandaran selepas kata pertama supaya auto-scroll & sorotan sentiasa bergerak
+        if (charRanges.length > 1) {
+          stepTimer = setTimeout(() => {
+            if (!boundaryFired && activeToken === sessionToken && isPlaying && !isPaused) {
+              runTimerStep();
+            }
+          }, estimateWordMs(charRanges[0].token, currentRate));
+        }
       };
 
       utterance.onboundary = (event) => {
-        if (activeToken !== sessionToken) return;
+        if (activeToken !== sessionToken || segmentFinished) return;
         if (event.name && event.name !== "word") return;
         boundaryFired = true;
-        clearFallbackTimer();
+        clearStepTimer();
 
         const charIdx = typeof event.charIndex === "number" ? event.charIndex : 0;
         const matched =
@@ -635,55 +745,27 @@
 
         if (matched) {
           localPointer = matched.localIdx + 1;
-          advanceWordVisual(matched.globalIndex);
+          markActiveWord(matched.globalIndex, segment.sectionLabel);
         }
       };
 
       utterance.onend = () => {
-        clearFallbackTimer();
-        if (activeToken !== sessionToken) return;
-
-        segment.items.forEach((x) => {
-          allSpokenItems[x.globalIndex].element.classList.remove("active");
-          allSpokenItems[x.globalIndex].element.classList.add("spoken");
-        });
-
-        currentIndex = segment.nextGlobalIndex;
-        if (currentIndex < allSpokenItems.length) {
-          statusLine.textContent = "Switching language...";
-          setTimeout(() => {
-            if (activeToken === sessionToken && isPlaying && !isPaused) {
-              speakFrom(currentIndex, activeToken);
-            }
-          }, 550);
-        } else {
-          isPlaying = false;
-          isPaused = false;
-          togglePauseBtn.textContent = "Replay";
-          statusLine.textContent = "Completed reading Malay and English sermon.";
-        }
+        moveToNextSegment();
       };
 
       utterance.onerror = (e) => {
-        clearFallbackTimer();
         if (activeToken !== sessionToken) return;
         if (e.error === "interrupted" || e.error === "canceled") return;
 
         if (e.error === "not-allowed") {
+          clearStepTimer();
           isPlaying = false;
           unlockOverlay.classList.add("visible");
           statusLine.textContent = "Tap anywhere to allow voice playback.";
           return;
         }
 
-        // Skip smoothly to next language block if one voice pack fails
-        currentIndex = segment.nextGlobalIndex;
-        if (currentIndex < allSpokenItems.length) {
-          speakFrom(currentIndex, activeToken);
-        } else {
-          isPlaying = false;
-          statusLine.textContent = "Voice playback finished with a notice.";
-        }
+        moveToNextSegment();
       };
 
       window.speechSynthesis.speak(utterance);
@@ -691,7 +773,12 @@
 
     function startReading(fromBeginning = false) {
       if (!("speechSynthesis" in window)) return;
-      clearFallbackTimer();
+      clearStepTimer();
+      if (scrollAnimFrame) {
+        cancelAnimationFrame(scrollAnimFrame);
+        scrollAnimFrame = null;
+      }
+
       sessionToken += 1;
       const myToken = sessionToken;
 
@@ -721,12 +808,14 @@
         const myToken = sessionToken;
         const probe = new SpeechSynthesisUtterance(" ");
         probe.volume = 0.01;
+
         probe.onstart = () => {
           if (myToken !== sessionToken) return;
           window.speechSynthesis.cancel();
           unlockOverlay.classList.remove("visible");
           startReading(true);
         };
+
         probe.onerror = () => {
           if (myToken !== sessionToken) return;
           isPlaying = false;
@@ -734,6 +823,7 @@
           statusLine.textContent = "Tap anywhere to begin auto-reading.";
           unlockOverlay.classList.add("visible");
         };
+
         window.speechSynthesis.speak(probe);
 
         setTimeout(() => {
@@ -748,7 +838,7 @@
     }
 
     // =========================================================================
-    // 4. USER CONTROLS & TAP-TO-UNLOCK
+    // 5. KAWALAN PENGGUNA
     // =========================================================================
     function unlockAndPlay() {
       unlockOverlay.classList.remove("visible");
@@ -757,9 +847,26 @@
         isPaused = false;
         isPlaying = true;
         togglePauseBtn.textContent = "Pause";
+        if (allSpokenItems[currentIndex]) {
+          runFallbackResumeFromCurrent();
+        }
         return;
       }
       startReading(false);
+    }
+
+    function runFallbackResumeFromCurrent() {
+      const myToken = sessionToken;
+      const item = allSpokenItems[currentIndex];
+      if (!item) return;
+      autoScrollToElement(item.element);
+      clearStepTimer();
+      stepTimer = setTimeout(() => {
+        if (myToken === sessionToken && isPlaying && !isPaused && currentIndex + 1 < allSpokenItems.length) {
+          markActiveWord(currentIndex + 1, allSpokenItems[currentIndex + 1].sectionLabel);
+          runFallbackResumeFromCurrent();
+        }
+      }, estimateWordMs(item.speechToken, speeds[speedIndex]));
     }
 
     unlockOverlay.addEventListener("click", unlockAndPlay);
@@ -778,17 +885,18 @@
 
       if (!isPaused) {
         window.speechSynthesis.pause();
-        clearFallbackTimer();
+        clearStepTimer();
         isPaused = true;
         isPlaying = false;
         togglePauseBtn.textContent = "Resume";
-        statusLine.textContent = "Paused";
+        statusLine.textContent = `Paused at word ${currentIndex + 1} of ${allSpokenItems.length}`;
       } else {
         window.speechSynthesis.resume();
         isPaused = false;
         isPlaying = true;
         togglePauseBtn.textContent = "Pause";
-        statusLine.textContent = `Resuming (${currentIndex + 1} / ${allSpokenItems.length} words)`;
+        statusLine.textContent = `Resuming • Word ${currentIndex + 1} of ${allSpokenItems.length}`;
+        runFallbackResumeFromCurrent();
       }
     });
 
@@ -805,15 +913,23 @@
       }
     });
 
+    autoscrollBtn.addEventListener("click", () => {
+      autoScrollEnabled = !autoScrollEnabled;
+      autoscrollBtn.textContent = `Auto-Scroll: ${autoScrollEnabled ? "ON" : "OFF"}`;
+      if (autoScrollEnabled && allSpokenItems[currentIndex]) {
+        autoScrollToElement(allSpokenItems[currentIndex].element);
+      }
+    });
+
     window.addEventListener("beforeunload", () => {
-      clearFallbackTimer();
+      clearStepTimer();
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
     });
 
     // =========================================================================
-    // 5. FALLING LEAVES ANIMATION (CANVAS)
+    // 6. ANIMASI DAUN GUGUR (CANVAS)
     // =========================================================================
     const canvas = document.getElementById("leaves-canvas");
     const ctx = canvas.getContext("2d");
@@ -898,7 +1014,6 @@
       createLeaves();
     });
 
-    // Attempt auto-read on load
     window.addEventListener("load", () => {
       setTimeout(attemptAutoStart, 250);
     });
