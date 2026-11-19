@@ -16,7 +16,7 @@
       --gold-soft: rgba(229, 184, 105, 0.16);
       --emerald-soft: #6fd3b5;
       --emerald-glow: rgba(52, 168, 120, 0.22);
-      --line-active-bg: rgba(229, 184, 105, 0.16);
+      --line-active-bg: rgba(229, 184, 105, 0.14);
       --line-active-border: #e5b869;
     }
 
@@ -167,11 +167,11 @@
     .read-line {
       font-size: clamp(1.06rem, 2.3vw, 1.22rem);
       margin-bottom: 16px;
-      padding: 10px 14px;
+      padding: 12px 16px;
       border-radius: 12px;
       border-left: 3px solid transparent;
       color: var(--text-main);
-      transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .read-line.heading-line {
@@ -190,7 +190,7 @@
     .read-line.reading-highlight {
       background-color: var(--line-active-bg);
       border-left-color: var(--line-active-border);
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
       color: #fffaf0;
     }
 
@@ -328,7 +328,7 @@
       <div class="badge">Khutbah Jumaat • 10 Jamadilakhir 1448H</div>
       <h1 class="hero-title">Kelembutan Jiwa: Penawar Ketegangan</h1>
       <div class="hero-subtitle">Gentleness: The Remedy for Conflict</div>
-      <div id="status-line" class="status-line">Preparing line-by-line voice reader...</div>
+      <div id="status-line" class="status-line">Preparing steady paragraph reader...</div>
     </header>
 
     <section id="malay-section" class="sermon-card" aria-label="Khutbah Jumaat dalam Bahasa Melayu">
@@ -351,9 +351,6 @@
   </nav>
 
   <script>
-    // =========================================================================
-    // 1. BARIS / BLOK BACAAN (MELAYU DAHULU, KEMUDIAN INGGERIS)
-    // =========================================================================
     const MALAY_LINES = [
       { text: "Assalamualaikum wr wb selamat sejahtera..", type: "normal" },
       { text: "Salam jumaat..", type: "normal" },
@@ -404,7 +401,7 @@
     const allLines = [];
 
     function normalizeLineForSpeech(lineText, lang) {
-      let spoken = lineText
+      return lineText
         .replace(/💕/g, "")
         .replace(/[()]/g, " ")
         .replace(/\bwr\b/gi, "warahmatullahi")
@@ -413,8 +410,6 @@
         .replace(/&/g, lang === "ms" ? "dan" : "and")
         .replace(/\s+/g, " ")
         .trim();
-
-      return spoken;
     }
 
     function renderSectionLines(lines, container, lang, sectionLabel) {
@@ -438,9 +433,6 @@
     renderSectionLines(MALAY_LINES, malayContent, "ms", "Malay");
     renderSectionLines(ENGLISH_LINES, englishContent, "en", "English");
 
-    // =========================================================================
-    // 2. BACAAN BARIS DEMI BARIS & AUTO-SCROLL
-    // =========================================================================
     const speeds = [0.85, 1.0, 1.15];
     let speedIndex = 1;
     let currentLineIndex = 0;
@@ -496,7 +488,7 @@
       if (el) {
         el.classList.add("reading-highlight");
         lastHighlightedEl = el;
-        const targetY = el.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2.5;
+        const targetY = el.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2.6;
         window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
       }
       const pct = Math.min(100, Math.max(0, ((index + 1) / allLines.length) * 100));
@@ -533,7 +525,7 @@
       currentLineIndex = index;
       const item = allLines[index];
       highlightLine(item.element, index);
-      statusLine.textContent = `Reading ${item.sectionLabel} • Line ${index + 1} of ${allLines.length}`;
+      statusLine.textContent = `Reading ${item.sectionLabel} • Paragraph ${index + 1} of ${allLines.length}`;
 
       if (!item.spokenText) {
         speakLineAt(index + 1, activeToken);
@@ -567,7 +559,7 @@
           if (activeToken === sessionToken && isReading && !isPaused) {
             speakLineAt(nextIdx, activeToken);
           }
-        }, switchingToEnglish ? 700 : 280);
+        }, switchingToEnglish ? 750 : 350);
       }
 
       utterance.onstart = () => {
@@ -689,7 +681,7 @@
         clearTimer();
         synth.cancel();
         togglePauseBtn.textContent = "Resume";
-        statusLine.textContent = `Paused at line ${currentLineIndex + 1} of ${allLines.length}`;
+        statusLine.textContent = `Paused at paragraph ${currentLineIndex + 1} of ${allLines.length}`;
       } else {
         isPaused = false;
         isReading = true;
@@ -719,9 +711,7 @@
       if (synth) synth.cancel();
     });
 
-    // =========================================================================
-    // 3. ANIMASI DAUN GUGUR (CANVAS)
-    // =========================================================================
+    // Animasi daun gugur di latar belakang
     const canvas = document.getElementById("leaves-canvas");
     const ctx = canvas.getContext("2d");
     let leaves = [];
