@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Khutbah Jumaat — Kelembutan Jiwa / Gentleness</title>
+  <style>
+    :root {
+      --bg-deep: #07110e;
+      --bg-mid: #0d1f19;
+      --card-bg: rgba(14, 31, 25, 0.78);
+      --card-border: rgba(229, 184, 105, 0.22);
+      --text-main: #f3efe6;
+      --text-muted: #b7c4be;
+      --gold: #e5b869;
+      --gold-soft: rgba(229, 184, 105, 0.16);
+      --emerald-glow: rgba(52, 168, 120, 0.22);
+      --word-active-bg: rgba(229, 184, 105, 0.28);
+      --word-active-text: #fff7e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, var(--emerald-glow), transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(229, 184, 105, 0.09), transparent 40%),
+        linear-gradient(175deg, var(--bg-deep) 0%, var(--bg-mid) 55%, #060e0b 100%);
+      color: var(--text-main);
+      line-height: 1.85;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #leaves-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 36px 20px 120px;
+    }
+
+    .hero-header {
+      text-align: center;
+      padding: 28px 20px 32px;
+      margin-bottom: 24px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(19, 43, 35, 0.72), rgba(10, 23, 18, 0.65));
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-soft);
+      border: 1px solid rgba(229, 184, 105, 0.35);
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .hero-title {
+      font-size: clamp(1.5rem, 4vw, 2.25rem);
+      font-weight: 700;
+      color: #fffaf0;
+      letter-spacing: 0.01em;
+      margin-bottom: 8px;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .status-line {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      min-height: 1.4em;
+    }
+
+    .sermon-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 28px 24px;
+      margin-bottom: 26px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.38);
+    }
+
+    @media (min-width: 640px) {
+      .sermon-card {
+        padding: 36px 38px;
+      }
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(229, 184, 105, 0.25);
+    }
+
+    .sermon-line {
+      font-size: clamp(1.05rem, 2.3vw, 1.22rem);
+      margin-bottom: 16px;
+      color: var(--text-main);
+    }
+
+    .sermon-line.heading-line {
+      font-weight: 700;
+      color: #fff6e0;
+      font-size: clamp(1.14rem, 2.5vw, 1.35rem);
+      margin-top: 8px;
+    }
+
+    .sermon-line.meta-line {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      letter-spacing: 0.03em;
+    }
+
+    .divider-ornament {
+      text-align: center;
+      color: rgba(229, 184, 105, 0.55);
+      letter-spacing: 0.35em;
+      margin: 28px 0;
+      font-size: 0.95rem;
+      user-select: none;
+    }
+
+    .word {
+      display: inline;
+      border-radius: 5px;
+      padding: 1px 2px;
+      transition: background-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .word.active {
+      background-color: var(--word-active-bg);
+      color: var(--word-active-text);
+      box-shadow: 0 0 0 2px rgba(229, 184, 105, 0.35);
+      font-weight: 600;
+    }
+
+    .word.spoken {
+      color: rgba(243, 239, 230, 0.88);
+    }
+
+    /* Tap-to-start overlay when browser blocks autoplay */
+    .unlock-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(5, 13, 10, 0.72);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .unlock-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .unlock-box {
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      background: linear-gradient(160deg, #132c23, #0a1813);
+      border: 1px solid rgba(229, 184, 105, 0.45);
+      border-radius: 22px;
+      padding: 32px 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    .unlock-box h2 {
+      color: #fff8e7;
+      font-size: 1.35rem;
+      margin-bottom: 10px;
+    }
+
+    .unlock-box p {
+      color: var(--text-muted);
+      font-size: 0.96rem;
+      margin-bottom: 22px;
+    }
+
+    .unlock-btn {
+      background: linear-gradient(135deg, #e5b869, #c8953e);
+      color: #091510;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 26px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(229, 184, 105, 0.3);
+    }
+
+    /* Floating subtle controls */
+    .controls-bar {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(11, 25, 20, 0.88);
+      border: 1px solid rgba(229, 184, 105, 0.3);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      max-width: calc(100vw - 24px);
+      overflow-x: auto;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--gold-soft);
+      border-color: rgba(229, 184, 105, 0.45);
+      color: #fff6df;
+    }
+
+    .ctrl-btn.primary {
+      background: rgba(229, 184, 105, 0.2);
+      border-color: rgba(229, 184, 105, 0.5);
+      color: var(--gold);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="leaves-canvas" aria-hidden="true"></canvas>
+
+  <div id="unlock-overlay" class="unlock-overlay" role="dialog" aria-modal="true" aria-labelledby="unlock-title">
+    <div class="unlock-box">
+      <div class="badge">Salam Jumaat</div>
+      <h2 id="unlock-title">Tap Anywhere to Begin Reading</h2>
+      <p>Your browser requires a tap to enable voice playback. Reading will start in Malay first, followed by English.</p>
+      <button id="overlay-start-btn" class="unlock-btn" type="button">Start Friday Sermon</button>
+    </div>
+  </div>
+
+  <main class="page-wrapper">
+    <header class="hero-header">
+      <div class="badge">Khutbah Jumaat • 10 Jamadilakhir 1448H</div>
+      <h1 class="hero-title">Kelembutan Jiwa: Penawar Ketegangan</h1>
+      <div class="hero-subtitle">Gentleness: The Remedy for Conflict</div>
+      <div id="status-line" class="status-line">Preparing voice reader...</div>
+    </header>
+
+    <section id="malay-section" class="sermon-card" aria-label="Khutbah Jumaat dalam Bahasa Melayu">
+      <div class="section-tag">Bahasa Melayu (Pertama / First)</div>
+      <div id="malay-content"></div>
+    </section>
+
+    <div class="divider-ornament" aria-hidden="true">✦ ✦ ✦</div>
+
+    <section id="english-section" class="sermon-card" aria-label="Friday Sermon in English">
+      <div class="section-tag">English (Kedua / Second)</div>
+      <div id="english-content"></div>
+    </section>
+  </main>
+
+  <nav class="controls-bar" aria-label="Playback controls">
+    <button id="toggle-pause-btn" class="ctrl-btn primary" type="button">Pause</button>
+    <button id="restart-btn" class="ctrl-btn" type="button">Restart</button>
+    <button id="speed-btn" class="ctrl-btn" type="button" title="Change reading speed">Speed: 1.0x</button>
+  </nav>
+
+  <script>
+    // =========================================================================
+    // 1. SERMON DATA (MALAY FIRST, ENGLISH SECOND)
+    // =========================================================================
+    const MALAY_BLOCKS = [
+      { text: "Assalamualaikum wr wb selamat sejahtera..", type: "normal" },
+      { text: "Salam jumaat..", type: "normal" },
+      { text: "KUTBUH JUMAAT", type: "heading" },
+      { text: "10 JAMADILAKHIR 1448H / 20 NOVEMBER 2026M", type: "meta" },
+      { text: "KELEMBUTAN JIWA: PENAWAR KETEGANGAN", type: "heading" },
+      {
+        text: "Keindahan hati dan akhlak Nabi s.a.w, walaupun dikasari, beliau tidak membalas dengan kekerasan, atau menjadikan sifat kasar lelaki itu alasan untuk membalasnya dengan kekasaran juga. Sebaliknya, Nabi s.a.w. menunjukkan sifat yang menjadi penawar ketika berlaku ketegangan, iaitu kelembutan.",
+        type: "normal"
+      },
+      {
+        text: "Kelembutan jiwa Nabi s.a.w. tidak bererti kita perlu bersikap pasif dan menanggung penderitaan dalam diam. Kelembutan tidak bermakna kelemahan, bahkan ia sebenarnya adalah kekuatan. Kekuatan menahan marah dan kemampuan untuk bersabar.",
+        type: "normal"
+      },
+      {
+        text: "Nabi s.a.w. memiliki kekuatan fizikal dan kedudukan sosial untuk menghukum Badwi tersebut. Tetapi Nabi s.a.w. memilih untuk bersabar kerana tahu lelaki itu bertindak atas dasar kejahilan, bukan kerana berniat jahat. Namun apabila batasan dilanggar atau golongan yang lemah ditindas, Nabi s.a.w. adalah orang pertama yang berdiri tegas menuntut keadilan. Semoga dimudahkan semua urusan kita sekeluarga & diberikan kesembuhan pada yang sedang sakit, Aamiin 💕",
+        type: "normal"
+      }
+    ];
+
+    const ENGLISH_BLOCKS = [
+      { text: "GENTLENESS: THE REMEDY FOR CONFLICT", type: "heading" },
+      {
+        text: "The beauty of the Prophet’s heart and character; although he was treated harshly, he did not respond with harshness, nor did he treat the man’s harshness as an excuse to be harsh in return. Instead, the Prophet s.a.w. demonstrated the quality which is the remedy in times of tension: gentleness.",
+        type: "normal"
+      },
+      {
+        text: "The Prophet’s gentleness does not mean that we should be passive and suffer in silence. Gentleness is not weakness; it is in fact strength. What strength, dear congregants? The strength to restrain anger and the ability to be patient.",
+        type: "normal"
+      },
+      {
+        text: "The Prophet s.a.w. had the physical strength and social standing to punish the Bedouin. But he chose patience, because he knew the man acted out of ignorance, not out of ill intent. Yet when boundaries were crossed or the weak were oppressed, the Prophet s.a.w. was the first to stand firm and demand justice.",
+        type: "normal"
+      }
+    ];
+
+    // =========================================================================
+    // 2. RENDER TEXT WITH WORD-LEVEL SPANS FOR HIGHLIGHTING & AUTO-SCROLL
+    // =========================================================================
+    const malayContainer = document.getElementById("malay-content");
+    const englishContainer = document.getElementById("english-content");
+    const statusLine = document.getElementById("status-line");
+    const unlockOverlay = document.getElementById("unlock-overlay");
+    const overlayStartBtn = document.getElementById("overlay-start-btn");
+    const togglePauseBtn = document.getElementById("toggle-pause-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const speedBtn = document.getElementById("speed-btn");
+
+    const allSpokenItems = []; // { element, cleanWord, lang, sectionLabel }
+
+    function normalizeWordForSpeech(rawWord, lang) {
+      const cleaned = rawWord
+        .replace(/💕/g, "")
+        .replace(/[()]/g, " ")
+        .trim();
+
+      if (!cleaned) return "";
+
+      const lower = cleaned.toLowerCase();
+      if (lower === "wr") return "warahmatullahi";
+      if (lower === "wb" || lower === "wb..") return "wabarakatuh";
+      if (lower === "s.a.w" || lower === "s.a.w." || lower === "s.a.w,") {
+        return lang === "ms" ? "sallallahu alaihi wasallam" : "peace be upon him";
+      }
+      if (cleaned === "&") {
+        return lang === "ms" ? "dan" : "and";
+      }
+      return cleaned;
+    }
+
+    function renderBlocks(blocks, targetContainer, lang, sectionLabel) {
+      blocks.forEach((block) => {
+        const p = document.createElement("p");
+        p.className = "sermon-line";
+        if (block.type === "heading") p.classList.add("heading-line");
+        if (block.type === "meta") p.classList.add("meta-line");
+
+        const tokens = block.text.split(/\s+/).filter(Boolean);
+        tokens.forEach((token, idx) => {
+          const span = document.createElement("span");
+          span.className = "word";
+          span.textContent = token;
+          p.appendChild(span);
+
+          if (idx < tokens.length - 1) {
+            p.appendChild(document.createTextNode(" "));
+          }
+
+          const speechToken = normalizeWordForSpeech(token, lang);
+          if (speechToken) {
+            allSpokenItems.push({
+              element: span,
+              speechToken,
+              lang,
+              sectionLabel
+            });
+          }
+        });
+
+        targetContainer.appendChild(p);
+      });
+    }
+
+    renderBlocks(MALAY_BLOCKS, malayContainer, "ms", "Malay");
+    renderBlocks(ENGLISH_BLOCKS, englishContainer, "en", "English");
+
+    // =========================================================================
+    // 3. SPEECH SYNTHESIS WITH AUTO-SCROLL & FALLBACK TRACKING
+    // =========================================================================
+    const speeds = [0.85, 1.0, 1.15];
+    let speedIndex = 1;
+    let currentIndex = 0;
+    let isPlaying = false;
+    let isPaused = false;
+    let sessionToken = 0;
+    let fallbackTimer = null;
+    let voicesCache = [];
+
+    function loadVoices() {
+      if (!("speechSynthesis" in window)) return [];
+      voicesCache = window.speechSynthesis.getVoices();
+      return voicesCache;
+    }
+
+    if ("speechSynthesis" in window) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function pickVoice(langCode) {
+      const voices = voicesCache.length ? voicesCache : loadVoices();
+      if (!voices.length) return null;
+
+      if (langCode === "ms") {
+        return (
+          voices.find((v) => /^ms(-|_|$)/i.test(v.lang)) ||
+          voices.find((v) => /malay|melayu/i.test(v.name)) ||
+          voices.find((v) => /^id(-|_|$)/i.test(v.lang)) ||
+          null
+        );
+      }
+
+      return (
+        voices.find((v) => /^en-(GB|SG|AU)/i.test(v.lang)) ||
+        voices.find((v) => /^en(-|_|$)/i.test(v.lang)) ||
+        null
+      );
+    }
+
+    function clearFallbackTimer() {
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
+    }
+
+    function clearWordHighlights(upToIndex = -1) {
+      allSpokenItems.forEach((item, idx) => {
+        item.element.classList.remove("active");
+        if (idx <= upToIndex) {
+          item.element.classList.add("spoken");
+        } else {
+          item.element.classList.remove("spoken");
+        }
+      });
+    }
+
+    function highlightWord(index) {
+      if (index < 0 || index >= allSpokenItems.length) return;
+      allSpokenItems.forEach((item, idx) => {
+        if (idx < index) {
+          item.element.classList.remove("active");
+          item.element.classList.add("spoken");
+        } else if (idx === index) {
+          item.element.classList.add("active");
+          item.element.classList.remove("spoken");
+        } else {
+          item.element.classList.remove("active", "spoken");
+        }
+      });
+
+      const targetEl = allSpokenItems[index].element;
+      const rect = targetEl.getBoundingClientRect();
+      const idealTop = window.innerHeight * 0.36;
+      const idealBottom = window.innerHeight * 0.68;
+
+      if (rect.top < idealTop || rect.bottom > idealBottom) {
+        targetEl.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+      }
+    }
+
+    function groupConsecutiveByLang(startIdx) {
+      const targetLang = allSpokenItems[startIdx].lang;
+      const sectionLabel = allSpokenItems[startIdx].sectionLabel;
+      const slice = [];
+      let cursor = startIdx;
+
+      while (cursor < allSpokenItems.length && allSpokenItems[cursor].lang === targetLang) {
+        slice.push({
+          globalIndex: cursor,
+          token: allSpokenItems[cursor].speechToken
+        });
+        cursor++;
+      }
+
+      return {
+        lang: targetLang,
+        sectionLabel,
+        items: slice,
+        nextGlobalIndex: cursor
+      };
+    }
+
+    function speakFrom(startIndex, activeToken) {
+      clearFallbackTimer();
+
+      if (activeToken !== sessionToken) return;
+
+      if (!("speechSynthesis" in window)) {
+        statusLine.textContent = "Text-to-speech is not supported on this browser.";
+        return;
+      }
+
+      if (startIndex >= allSpokenItems.length) {
+        isPlaying = false;
+        isPaused = false;
+        togglePauseBtn.textContent = "Replay";
+        statusLine.textContent = "Completed reading Malay and English sermon.";
+        return;
+      }
+
+      const segment = groupConsecutiveByLang(startIndex);
+      const textToSpeak = segment.items.map((x) => x.token).join(" ");
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      const chosenVoice = pickVoice(segment.lang);
+
+      utterance.lang = chosenVoice ? chosenVoice.lang : (segment.lang === "ms" ? "ms-MY" : "en-US");
+      if (chosenVoice) utterance.voice = chosenVoice;
+      utterance.rate = speeds[speedIndex];
+      utterance.pitch = 1.0;
+
+      // Map character offsets in `textToSpeak` back to word indices in `segment.items`
+      const charRanges = [];
+      let runningPos = 0;
+      segment.items.forEach((entry, localIdx) => {
+        const start = runningPos;
+        const end = start + entry.token.length;
+        charRanges.push({ start, end, localIdx, globalIndex: entry.globalIndex });
+        runningPos = end + 1;
+      });
+
+      let boundaryFired = false;
+      let localPointer = 0;
+
+      function advanceWordVisual(targetGlobalIndex) {
+        currentIndex = targetGlobalIndex;
+        highlightWord(targetGlobalIndex);
+        statusLine.textContent = `Reading ${segment.sectionLabel} (${currentIndex + 1} / ${allSpokenItems.length} words)`;
+      }
+
+      function scheduleFallbackStep() {
+        clearFallbackTimer();
+        if (!isPlaying || isPaused || activeToken !== sessionToken) return;
+        if (localPointer >= charRanges.length) return;
+
+        const currentEntry = charRanges[localPointer];
+        advanceWordVisual(currentEntry.globalIndex);
+
+        const baseMs = Math.max(170, currentEntry.token.length * 46);
+        const adjustedMs = baseMs / speeds[speedIndex];
+        localPointer++;
+
+        fallbackTimer = setTimeout(scheduleFallbackStep, adjustedMs);
+      }
+
+      utterance.onstart = () => {
+        if (activeToken !== sessionToken) return;
+        unlockOverlay.classList.remove("visible");
+        isPlaying = true;
+        isPaused = false;
+        togglePauseBtn.textContent = "Pause";
+        advanceWordVisual(segment.items[0].globalIndex);
+
+        // If boundary events don't fire within 900ms (common on some mobile engines), use timer fallback
+        fallbackTimer = setTimeout(() => {
+          if (!boundaryFired && activeToken === sessionToken && isPlaying && !isPaused) {
+            localPointer = 1;
+            scheduleFallbackStep();
+          }
+        }, 900);
+      };
+
+      utterance.onboundary = (event) => {
+        if (activeToken !== sessionToken) return;
+        if (event.name && event.name !== "word") return;
+        boundaryFired = true;
+        clearFallbackTimer();
+
+        const charIdx = typeof event.charIndex === "number" ? event.charIndex : 0;
+        const matched =
+          charRanges.find((r) => charIdx >= r.start && charIdx <= r.end + 1) ||
+          charRanges.find((r) => r.start >= charIdx) ||
+          charRanges[charRanges.length - 1];
+
+        if (matched) {
+          localPointer = matched.localIdx + 1;
+          advanceWordVisual(matched.globalIndex);
+        }
+      };
+
+      utterance.onend = () => {
+        clearFallbackTimer();
+        if (activeToken !== sessionToken) return;
+
+        segment.items.forEach((x) => {
+          allSpokenItems[x.globalIndex].element.classList.remove("active");
+          allSpokenItems[x.globalIndex].element.classList.add("spoken");
+        });
+
+        currentIndex = segment.nextGlobalIndex;
+        if (currentIndex < allSpokenItems.length) {
+          statusLine.textContent = "Switching language...";
+          setTimeout(() => {
+            if (activeToken === sessionToken && isPlaying && !isPaused) {
+              speakFrom(currentIndex, activeToken);
+            }
+          }, 550);
+        } else {
+          isPlaying = false;
+          isPaused = false;
+          togglePauseBtn.textContent = "Replay";
+          statusLine.textContent = "Completed reading Malay and English sermon.";
+        }
+      };
+
+      utterance.onerror = (e) => {
+        clearFallbackTimer();
+        if (activeToken !== sessionToken) return;
+        if (e.error === "interrupted" || e.error === "canceled") return;
+
+        if (e.error === "not-allowed") {
+          isPlaying = false;
+          unlockOverlay.classList.add("visible");
+          statusLine.textContent = "Tap anywhere to allow voice playback.";
+          return;
+        }
+
+        // Skip smoothly to next language block if one voice pack fails
+        currentIndex = segment.nextGlobalIndex;
+        if (currentIndex < allSpokenItems.length) {
+          speakFrom(currentIndex, activeToken);
+        } else {
+          isPlaying = false;
+          statusLine.textContent = "Voice playback finished with a notice.";
+        }
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function startReading(fromBeginning = false) {
+      if (!("speechSynthesis" in window)) return;
+      clearFallbackTimer();
+      sessionToken += 1;
+      const myToken = sessionToken;
+
+      window.speechSynthesis.cancel();
+
+      if (fromBeginning || currentIndex >= allSpokenItems.length) {
+        currentIndex = 0;
+        clearWordHighlights(-1);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      isPlaying = true;
+      isPaused = false;
+      togglePauseBtn.textContent = "Pause";
+      speakFrom(currentIndex, myToken);
+    }
+
+    function attemptAutoStart() {
+      if (!("speechSynthesis" in window)) {
+        statusLine.textContent = "Speech synthesis unavailable in this browser.";
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        sessionToken += 1;
+        const myToken = sessionToken;
+        const probe = new SpeechSynthesisUtterance(" ");
+        probe.volume = 0.01;
+        probe.onstart = () => {
+          if (myToken !== sessionToken) return;
+          window.speechSynthesis.cancel();
+          unlockOverlay.classList.remove("visible");
+          startReading(true);
+        };
+        probe.onerror = () => {
+          if (myToken !== sessionToken) return;
+          isPlaying = false;
+          togglePauseBtn.textContent = "Start";
+          statusLine.textContent = "Tap anywhere to begin auto-reading.";
+          unlockOverlay.classList.add("visible");
+        };
+        window.speechSynthesis.speak(probe);
+
+        setTimeout(() => {
+          if (myToken === sessionToken && !isPlaying && !isPaused) {
+            unlockOverlay.classList.add("visible");
+            statusLine.textContent = "Tap anywhere to begin auto-reading.";
+          }
+        }, 450);
+      } catch (_) {
+        unlockOverlay.classList.add("visible");
+      }
+    }
+
+    // =========================================================================
+    // 4. USER CONTROLS & TAP-TO-UNLOCK
+    // =========================================================================
+    function unlockAndPlay() {
+      unlockOverlay.classList.remove("visible");
+      if (isPaused && "speechSynthesis" in window) {
+        window.speechSynthesis.resume();
+        isPaused = false;
+        isPlaying = true;
+        togglePauseBtn.textContent = "Pause";
+        return;
+      }
+      startReading(false);
+    }
+
+    unlockOverlay.addEventListener("click", unlockAndPlay);
+    overlayStartBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      unlockAndPlay();
+    });
+
+    togglePauseBtn.addEventListener("click", () => {
+      if (!("speechSynthesis" in window)) return;
+
+      if (!isPlaying && !isPaused) {
+        startReading(currentIndex >= allSpokenItems.length);
+        return;
+      }
+
+      if (!isPaused) {
+        window.speechSynthesis.pause();
+        clearFallbackTimer();
+        isPaused = true;
+        isPlaying = false;
+        togglePauseBtn.textContent = "Resume";
+        statusLine.textContent = "Paused";
+      } else {
+        window.speechSynthesis.resume();
+        isPaused = false;
+        isPlaying = true;
+        togglePauseBtn.textContent = "Pause";
+        statusLine.textContent = `Resuming (${currentIndex + 1} / ${allSpokenItems.length} words)`;
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+      startReading(true);
+    });
+
+    speedBtn.addEventListener("click", () => {
+      speedIndex = (speedIndex + 1) % speeds.length;
+      const rate = speeds[speedIndex];
+      speedBtn.textContent = `Speed: ${rate.toFixed(2).replace(/\.00$/, ".0")}x`;
+      if (isPlaying || isPaused) {
+        startReading(false);
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      clearFallbackTimer();
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+
+    // =========================================================================
+    // 5. FALLING LEAVES ANIMATION (CANVAS)
+    // =========================================================================
+    const canvas = document.getElementById("leaves-canvas");
+    const ctx = canvas.getContext("2d");
+    let leaves = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    const leafPalette = [
+      "rgba(229, 184, 105, 0.52)",
+      "rgba(196, 148, 72, 0.42)",
+      "rgba(116, 168, 126, 0.36)",
+      "rgba(168, 184, 108, 0.40)"
+    ];
+
+    function createLeaves() {
+      const count = Math.min(34, Math.max(14, Math.floor(window.innerWidth / 42)));
+      leaves = Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 7 + Math.random() * 9,
+        speedY: 0.45 + Math.random() * 0.85,
+        swayAmp: 0.6 + Math.random() * 1.4,
+        swaySpeed: 0.008 + Math.random() * 0.015,
+        phase: Math.random() * Math.PI * 2,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.025,
+        color: leafPalette[Math.floor(Math.random() * leafPalette.length)]
+      }));
+    }
+
+    function drawLeaf(leaf) {
+      ctx.save();
+      ctx.translate(leaf.x, leaf.y);
+      ctx.rotate(leaf.angle);
+      ctx.fillStyle = leaf.color;
+
+      ctx.beginPath();
+      ctx.moveTo(0, -leaf.size);
+      ctx.quadraticCurveTo(leaf.size * 0.85, -leaf.size * 0.15, 0, leaf.size);
+      ctx.quadraticCurveTo(-leaf.size * 0.85, -leaf.size * 0.15, 0, -leaf.size);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255, 244, 214, 0.16)";
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(0, -leaf.size * 0.75);
+      ctx.lineTo(0, leaf.size * 0.8);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function animateLeaves() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const leaf of leaves) {
+        leaf.phase += leaf.swaySpeed;
+        leaf.x += Math.sin(leaf.phase) * leaf.swayAmp;
+        leaf.y += leaf.speedY;
+        leaf.angle += leaf.spin;
+
+        if (leaf.y > canvas.height + 24) {
+          leaf.y = -24;
+          leaf.x = Math.random() * canvas.width;
+        }
+        if (leaf.x < -30) leaf.x = canvas.width + 30;
+        if (leaf.x > canvas.width + 30) leaf.x = -30;
+
+        drawLeaf(leaf);
+      }
+      requestAnimationFrame(animateLeaves);
+    }
+
+    resizeCanvas();
+    createLeaves();
+    animateLeaves();
+
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      createLeaves();
+    });
+
+    // Attempt auto-read on load
+    window.addEventListener("load", () => {
+      setTimeout(attemptAutoStart, 250);
+    });
+  </script>
+</body>
+</html>
