@@ -38,7 +38,6 @@
       position: relative;
     }
 
-    /* Garis kemajuan bacaan di bahagian paling atas */
     .reading-progress-wrap {
       position: fixed;
       top: 0;
@@ -54,7 +53,7 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #c7933d, #f2cb80);
-      transition: width 0.2s ease-out;
+      transition: width 0.25s ease-out;
     }
 
     #leaves-canvas {
@@ -182,7 +181,7 @@
       display: inline;
       border-radius: 5px;
       padding: 1px 3px;
-      transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
     }
 
     .word.active {
@@ -196,7 +195,6 @@
       color: rgba(243, 239, 230, 0.90);
     }
 
-    /* Overlay sentuh untuk aktifkan suara jika disekat pelayar */
     .unlock-overlay {
       position: fixed;
       inset: 0;
@@ -252,7 +250,6 @@
       box-shadow: 0 8px 24px rgba(229, 184, 105, 0.3);
     }
 
-    /* Kawalan terapung di bawah */
     .controls-bar {
       position: fixed;
       bottom: 18px;
@@ -343,9 +340,6 @@
   </nav>
 
   <script>
-    // =========================================================================
-    // 1. TEKS KHUTBAH (BAHASA MELAYU DAHULU, KEMUDIAN BAHASA INGGERIS)
-    // =========================================================================
     const MALAY_BLOCKS = [
       { text: "Assalamualaikum wr wb selamat sejahtera..", type: "normal" },
       { text: "Salam jumaat..", type: "normal" },
@@ -382,9 +376,6 @@
       }
     ];
 
-    // =========================================================================
-    // 2. SUSUN PERKATAAN DALAM SPAN UNTUK SOROTAN & AUTO-SCROLL
-    // =========================================================================
     const malayContainer = document.getElementById("malay-content");
     const englishContainer = document.getElementById("english-content");
     const statusLine = document.getElementById("status-line");
@@ -454,9 +445,6 @@
     renderBlocks(MALAY_BLOCKS, malayContainer, "ms", "Malay");
     renderBlocks(ENGLISH_BLOCKS, englishContainer, "en", "English");
 
-    // =========================================================================
-    // 3. AUTO-SCROLL LANCAR (REQUESTANIMATIONFRAME)
-    // =========================================================================
     let autoScrollEnabled = true;
     let scrollAnimFrame = null;
 
@@ -471,16 +459,15 @@
       const startY = window.scrollY || window.pageYOffset || 0;
       const distance = clampedTarget - startY;
 
-      if (Math.abs(distance) < 4) return;
+      if (Math.abs(distance) < 6) return;
 
-      const duration = 360;
+      const duration = 540;
       const startTime = performance.now();
 
       function step(now) {
         if (!autoScrollEnabled) return;
         const elapsed = now - startTime;
         const t = Math.min(1, elapsed / duration);
-        // Ease out cubic
         const ease = 1 - Math.pow(1 - t, 3);
         window.scrollTo(0, startY + distance * ease);
 
@@ -497,19 +484,16 @@
     function autoScrollToElement(el) {
       if (!autoScrollEnabled || !el) return;
       const rect = el.getBoundingClientRect();
-      const desiredTop = window.innerHeight * 0.42;
-      const delta = rect.top - desiredTop;
+      const topZone = window.innerHeight * 0.30;
+      const bottomZone = window.innerHeight * 0.62;
 
-      // Gerakkan scroll apabila perkataan menyimpang lebih daripada 55px dari garis selesa
-      if (Math.abs(delta) > 55) {
+      if (rect.top < topZone || rect.bottom > bottomZone) {
+        const desiredTop = window.innerHeight * 0.40;
         const currentScroll = window.scrollY || window.pageYOffset || 0;
-        animateScrollToY(currentScroll + delta);
+        animateScrollToY(currentScroll + (rect.top - desiredTop));
       }
     }
 
-    // =========================================================================
-    // 4. SPEECH SYNTHESIS + PENJEJAK PERKATAAN DEMI PERKATAAN
-    // =========================================================================
     const speeds = [0.85, 1.0, 1.15];
     let speedIndex = 1;
     let currentIndex = 0;
@@ -619,10 +603,11 @@
       };
     }
 
+    // Rentak lebih tenang supaya tidak mendahului bacaan suara
     function estimateWordMs(token, rate) {
       const cleanLen = token.replace(/[^a-zA-Z0-9]/g, "").length || 3;
-      const pauseExtra = /[.!?,:;…]$/.test(token) ? 140 : 0;
-      const rawMs = Math.max(190, cleanLen * 56 + pauseExtra);
+      const pauseExtra = /[.!?,:;…]$/.test(token) ? 220 : 0;
+      const rawMs = 340 + cleanLen * 75 + pauseExtra;
       return Math.round(rawMs / rate);
     }
 
@@ -671,7 +656,7 @@
 
       function runTimerStep() {
         clearStepTimer();
-        if (segmentFinished || activeToken !== sessionToken || !isPlaying || isPaused) return;
+        if (segmentFinished || boundaryFired || activeToken !== sessionToken || !isPlaying || isPaused) return;
         if (localPointer >= charRanges.length) return;
 
         const entry = charRanges[localPointer];
@@ -701,7 +686,7 @@
             if (activeToken === sessionToken && isPlaying && !isPaused) {
               speakFrom(currentIndex, activeToken);
             }
-          }, 600);
+          }, 650);
         } else {
           isPlaying = false;
           isPaused = false;
@@ -721,7 +706,6 @@
         markActiveWord(segment.items[0].globalIndex, segment.sectionLabel);
         localPointer = 1;
 
-        // Mulakan penjejak sandaran selepas kata pertama supaya auto-scroll & sorotan sentiasa bergerak
         if (charRanges.length > 1) {
           stepTimer = setTimeout(() => {
             if (!boundaryFired && activeToken === sessionToken && isPlaying && !isPaused) {
@@ -837,9 +821,6 @@
       }
     }
 
-    // =========================================================================
-    // 5. KAWALAN PENGGUNA
-    // =========================================================================
     function unlockAndPlay() {
       unlockOverlay.classList.remove("visible");
       if (isPaused && "speechSynthesis" in window) {
@@ -847,9 +828,7 @@
         isPaused = false;
         isPlaying = true;
         togglePauseBtn.textContent = "Pause";
-        if (allSpokenItems[currentIndex]) {
-          runFallbackResumeFromCurrent();
-        }
+        runFallbackResumeFromCurrent();
         return;
       }
       startReading(false);
@@ -928,9 +907,6 @@
       }
     });
 
-    // =========================================================================
-    // 6. ANIMASI DAUN GUGUR (CANVAS)
-    // =========================================================================
     const canvas = document.getElementById("leaves-canvas");
     const ctx = canvas.getContext("2d");
     let leaves = [];
