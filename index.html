@@ -335,7 +335,6 @@
     <button id="toggle-pause-btn" class="ctrl-btn primary" type="button">Pause</button>
     <button id="restart-btn" class="ctrl-btn" type="button">Restart</button>
     <button id="speed-btn" class="ctrl-btn" type="button" title="Change reading speed">Speed: 1.0x</button>
-    <button id="autoscroll-btn" class="ctrl-btn" type="button" title="Toggle auto scroll">Auto-Scroll: ON</button>
   </nav>
 
   <script>
@@ -384,7 +383,6 @@
     const togglePauseBtn = document.getElementById("toggle-pause-btn");
     const restartBtn = document.getElementById("restart-btn");
     const speedBtn = document.getElementById("speed-btn");
-    const autoscrollBtn = document.getElementById("autoscroll-btn");
 
     const synth = window.speechSynthesis;
     const allLines = [];
@@ -427,7 +425,6 @@
     let currentLineIndex = 0;
     let isReading = false;
     let isPaused = false;
-    let autoScrollEnabled = true;
     let sessionToken = 0;
     let nextLineTimer = null;
     let voices = [];
@@ -470,11 +467,8 @@
       }
     }
 
-    function scrollToLine(el, index) {
-      if (autoScrollEnabled && el) {
-        const targetY = el.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.34;
-        window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
-      }
+    // Progress bar only — no auto-scroll / no line-following highlight
+    function updateProgress(index) {
       const pct = Math.min(100, Math.max(0, ((index + 1) / allLines.length) * 100));
       progressBar.style.width = `${pct.toFixed(1)}%`;
     }
@@ -499,7 +493,7 @@
 
       currentLineIndex = index;
       const item = allLines[index];
-      scrollToLine(item.element, index);
+      updateProgress(index);
       statusLine.textContent = `Reading ${item.sectionLabel}`;
 
       if (!item.spokenText) {
@@ -678,14 +672,6 @@
         sessionToken += 1;
         synth.cancel();
         speakLineAt(currentLineIndex, sessionToken);
-      }
-    });
-
-    autoscrollBtn.addEventListener("click", () => {
-      autoScrollEnabled = !autoScrollEnabled;
-      autoscrollBtn.textContent = `Auto-Scroll: ${autoScrollEnabled ? "ON" : "OFF"}`;
-      if (autoScrollEnabled && allLines[currentLineIndex]) {
-        scrollToLine(allLines[currentLineIndex].element, currentLineIndex);
       }
     });
 
